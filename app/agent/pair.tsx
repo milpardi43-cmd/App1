@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Keyboard, ScanLine, Link2, CheckCircle2, XCircle, Hourglass } from 'lucide-react-native';
-import { Colors, Typography, Spacing, Radius } from '@/lib/theme';
+import { Colors, Typography, Spacing, Radius, LtrDirection, RtlDirection } from '@/lib/theme';
 import { claimPairingCode, checkPairingStatus, isSupabaseConfigured } from '@/lib/pairing';
 import { getAgentIdentity } from '@/lib/useRealAgent';
 import { setPairingState, setDeviceId } from '@/lib/storage';
@@ -268,7 +268,7 @@ export default function AgentPairScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Colors.neutral[950], direction: 'rtl' },
+  root: { flex: 1, backgroundColor: Colors.neutral[950], ...RtlDirection },
   body: { flex: 1, padding: Spacing.lg },
 
   hero: {
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     letterSpacing: 14,
     fontFamily: Typography.fontFamily,
     marginVertical: Spacing.md,
-    direction: 'ltr',
+    ...LtrDirection,
   },
 
   scanWrap: { flex: 1, gap: Spacing.lg, justifyContent: 'center' },

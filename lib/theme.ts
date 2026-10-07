@@ -1,3 +1,5 @@
+import { Platform, type TextStyle, type ViewStyle } from 'react-native';
+
 export const Colors = {
   primary: {
     50: '#eef2ff',
@@ -137,3 +139,22 @@ export const CategoryLabels: Record<string, string> = {
   game: 'بازی',
   other: 'سایر',
 };
+
+/**
+ * Text/layout direction helpers.
+ *
+ * On native (the shipping Android APK) `direction: 'rtl' | 'ltr'` is a real
+ * Yoga style property that flips the layout of every child view.
+ * `react-native-web` does not support `direction` — it logs
+ * `Invalid style property of "direction"` and strips it on every render — so on
+ * web we use `writingDirection`, which react-native-web compiles to the CSS
+ * `direction` property. The RTL case is already covered globally by
+ * `document.documentElement.dir = 'rtl'` (see index.js), so it stays empty there.
+ */
+type DirectionStyle = ViewStyle & TextStyle;
+
+export const RtlDirection: DirectionStyle =
+  Platform.OS === 'web' ? {} : { direction: 'rtl' };
+
+export const LtrDirection: DirectionStyle =
+  Platform.OS === 'web' ? { writingDirection: 'ltr' } : { direction: 'ltr' };

@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Check, RotateCw, ArrowRight, ChevronLeft, ChevronRight, ClipboardList } from 'lucide-react-native';
-import { Colors, Typography, Spacing, Radius } from '@/lib/theme';
+import { Colors, Typography, Spacing, Radius, RtlDirection } from '@/lib/theme';
 import { toPersianDigits } from '@/lib/format';
 import { getLesson } from '@/lib/langContent';
 import { recordReview } from '@/lib/langProgress';
@@ -165,7 +165,7 @@ export default function LessonScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Colors.neutral[950], direction: 'rtl' },
+  root: { flex: 1, backgroundColor: Colors.neutral[950], ...RtlDirection },
 
   progressRow: {
     flexDirection: 'row-reverse',

@@ -24,7 +24,7 @@ import {
   Square,
   GraduationCap,
 } from 'lucide-react-native';
-import { Colors, Typography, Spacing, Radius } from '@/lib/theme';
+import { Colors, Typography, Spacing, Radius, RtlDirection } from '@/lib/theme';
 import { toPersianDigits } from '@/lib/format';
 import { checkPairingStatus, markOffline, isSupabaseConfigured } from '@/lib/pairing';
 import { getPairingState, clearPairingState, clearDeviceId, type PairingState } from '@/lib/storage';
@@ -368,7 +368,7 @@ function InfoTile({
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Colors.neutral[950], direction: 'rtl' },
+  root: { flex: 1, backgroundColor: Colors.neutral[950], ...RtlDirection },
   center: { justifyContent: 'center', alignItems: 'center' },
   body: { padding: Spacing.lg, paddingBottom: Spacing.xxl + 24 },
 

@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Trophy, ArrowRight, RotateCcw, Star } from 'lucide-react-native';
-import { Colors, Typography, Spacing, Radius } from '@/lib/theme';
+import { Colors, Typography, Spacing, Radius, RtlDirection } from '@/lib/theme';
 import { toPersianDigits } from '@/lib/format';
 import { getLesson, type LangWord } from '@/lib/langContent';
 import { recordQuizAnswer } from '@/lib/langProgress';
@@ -188,7 +188,7 @@ export default function QuizScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Colors.neutral[950], direction: 'rtl' },
+  root: { flex: 1, backgroundColor: Colors.neutral[950], ...RtlDirection },
 
   progressWrap: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.lg },
 
