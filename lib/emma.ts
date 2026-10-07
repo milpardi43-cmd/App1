@@ -1,5 +1,6 @@
 import { COURSE_LEVELS, SENTENCE_LESSONS } from './courseContent';
 import { ensureChatIdentity } from './conversations';
+import { requireSupabaseConfigured } from './errors';
 import { getCourseProgress } from './courseProgress';
 import { supabase } from './supabase';
 
@@ -49,6 +50,7 @@ export async function askEmma(
   messages: EmmaInputMessage[],
   options?: Partial<EmmaPracticeContext>,
 ): Promise<EmmaReply> {
+  requireSupabaseConfigured();
   await ensureChatIdentity();
   const context = { ...await getEmmaPracticeContext(), ...options };
   const { data, error } = await supabase.functions.invoke('emma-chat', {

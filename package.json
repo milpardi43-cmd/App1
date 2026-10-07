@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "validate:content": "node scripts/validate-course-content.mjs",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "validate:logic": "node scripts/verify-app-logic.mjs"
   },
   "dependencies": {
     "@config-plugins/react-native-webrtc": "^13.0.0",
@@ -61,6 +62,7 @@
     "@babel/core": "^7.25.2",
     "@types/react": "~19.1.10",
     "babel-plugin-module-resolver": "^5.0.3",
+    "esbuild": "^0.28.2",
     "typescript": "~5.9.2"
   }
 }

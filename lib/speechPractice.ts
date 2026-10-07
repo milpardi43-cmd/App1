@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import { ensureChatIdentity } from './conversations';
+import { requireSupabaseConfigured } from './errors';
 import { supabase } from './supabase';
 
 export interface SpeechEvaluation {
@@ -23,6 +24,7 @@ async function appendAudio(form: FormData, audioUri: string): Promise<void> {
 }
 
 export async function evaluateSpokenSentence(audioUri: string, expected: string): Promise<SpeechEvaluation> {
+  requireSupabaseConfigured();
   await ensureChatIdentity();
   const form = new FormData();
   form.append('expected', expected);
@@ -43,6 +45,7 @@ export async function evaluateSpokenSentence(audioUri: string, expected: string)
 }
 
 export async function transcribeLearnerSpeech(audioUri: string): Promise<string> {
+  requireSupabaseConfigured();
   await ensureChatIdentity();
   const form = new FormData();
   form.append('mode', 'transcribe');

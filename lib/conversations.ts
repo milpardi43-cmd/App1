@@ -1,5 +1,6 @@
 import type { RealtimeChannel, User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
+import { readableSupabaseError } from './errors';
 
 export interface RealContact {
   id: string;
@@ -21,40 +22,14 @@ export interface DirectMessage {
   createdAt: string;
 }
 
-/** Shown when `.env` has no real Supabase project configured. */
-export const SUPABASE_NOT_CONFIGURED_MESSAGE =
-  'برای این بخش باید اتصال Supabase تنظیم شود. مقادیر EXPO_PUBLIC_SUPABASE_URL و ' +
-  'EXPO_PUBLIC_SUPABASE_ANON_KEY را در فایل .env بگذارید و سرور را یک‌بار با ' +
-  'npx expo start -c دوباره اجرا کنید.';
-
-function readableError(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error || '');
-  if (/anonymous sign-ins|Anonymous sign-ins/i.test(message)) {
-    return 'ورود ناشناس در تنظیمات Authentication پروژه Supabase فعال نشده است.';
-  }
-  if (/invalid or expired/i.test(message)) return 'کد دعوت اشتباه است یا اعتبار آن تمام شده است.';
-  if (/own invite/i.test(message)) return 'نمی‌توانید کد دعوت خودتان را وارد کنید.';
-  if (/could not find the function|function .* does not exist|schema cache/i.test(message)) {
-    // The invite RPCs live in supabase/SETUP-CONVERSATIONS.sql (shipped as a
-    // migration in supabase/migrations/). Until they are applied, no code can
-    // ever be generated — surface that instead of the raw Postgres text.
-    return 'توابع ساخت کد دعوت روی Supabase اجرا نشده‌اند. فایل supabase/SETUP-CONVERSATIONS.sql را در SQL Editor اجرا کنید یا ./scripts/setup-production.sh را بزنید.';
-  }
-  if (/relation .* does not exist/i.test(message)) {
-    return 'جدول‌های مکالمه هنوز روی Supabase ساخته نشده‌اند.';
-  }
-  if (/fetch failed|failed to fetch|network ?error|load failed|timeout|timed out|ENOTFOUND|ERR_/i.test(message)) {
-    return 'ارتباط با سرور Supabase برقرار نشد. اتصال اینترنت دستگاه و درست بودن مقادیر .env را بررسی کنید.';
-  }
-  return message || 'ارتباط با سرور برقرار نشد.';
-}
+export { SUPABASE_NOT_CONFIGURED_MESSAGE, readableSupabaseError } from './errors';
 
 export async function ensureChatIdentity(displayName = 'زبان‌آموز'): Promise<User> {
   const { data: sessionData } = await supabase.auth.getSession();
   let user = sessionData.session?.user ?? null;
   if (!user) {
     const { data, error } = await supabase.auth.signInAnonymously();
-    if (error || !data.user) throw new Error(readableError(error));
+    if (error || !data.user) throw new Error(readableSupabaseError(error));
     user = data.user;
   }
 
@@ -62,14 +37,14 @@ export async function ensureChatIdentity(displayName = 'زبان‌آموز'): P
     { id: user.id, display_name: displayName, last_seen: new Date().toISOString() },
     { onConflict: 'id' },
   );
-  if (profileError) throw new Error(readableError(profileError));
+  if (profileError) throw new Error(readableSupabaseError(profileError));
   return user;
 }
 
 export async function createRealContactInvite(displayName = 'زبان‌آموز'): Promise<string> {
   await ensureChatIdentity(displayName);
   const { data, error } = await supabase.rpc('create_contact_invite', { p_display_name: displayName });
-  if (error || typeof data !== 'string') throw new Error(readableError(error));
+  if (error || typeof data !== 'string') throw new Error(readableSupabaseError(error));
   return data;
 }
 
@@ -79,7 +54,7 @@ export async function claimRealContactInvite(code: string, displayName = 'زبا
     p_code: code.trim(),
     p_display_name: displayName,
   });
-  if (error || typeof data !== 'string') throw new Error(readableError(error));
+  if (error || typeof data !== 'string') throw new Error(readableSupabaseError(error));
   return data;
 }
 
@@ -91,7 +66,7 @@ export async function listRealContacts(): Promise<RealContact[]> {
       'conversation_id,created_at,contact:profiles!learning_contacts_contact_id_fkey(id,display_name,avatar_emoji,english_level,last_seen)',
     )
     .order('created_at', { ascending: false });
-  if (error) throw new Error(readableError(error));
+  if (error) throw new Error(readableSupabaseError(error));
 
   return ((data || []) as any[]).flatMap((row) => {
     const contact = Array.isArray(row.contact) ? row.contact[0] : row.contact;
@@ -128,7 +103,7 @@ export async function listMessages(conversationId: string): Promise<DirectMessag
     .eq('conversation_id', conversationId)
     .order('created_at', { ascending: true })
     .limit(200);
-  if (error) throw new Error(readableError(error));
+  if (error) throw new Error(readableSupabaseError(error));
   return (data || []).map(mapMessage);
 }
 
@@ -141,7 +116,7 @@ export async function sendTextMessage(conversationId: string, body: string): Pro
     .insert({ conversation_id: conversationId, sender_id: user.id, message_type: 'text', body: clean })
     .select('*')
     .single();
-  if (error || !data) throw new Error(readableError(error));
+  if (error || !data) throw new Error(readableSupabaseError(error));
   return mapMessage(data);
 }
 
@@ -162,7 +137,7 @@ export async function sendVoiceMessage(
   const { error: uploadError } = await supabase.storage
     .from('chat-voice')
     .upload(mediaPath, audio, { contentType: extension === 'webm' ? 'audio/webm' : 'audio/mp4', upsert: false });
-  if (uploadError) throw new Error(readableError(uploadError));
+  if (uploadError) throw new Error(readableSupabaseError(uploadError));
 
   const { data, error } = await supabase
     .from('messages')
@@ -177,7 +152,7 @@ export async function sendVoiceMessage(
     .single();
   if (error || !data) {
     await supabase.storage.from('chat-voice').remove([mediaPath]);
-    throw new Error(readableError(error));
+    throw new Error(readableSupabaseError(error));
   }
   return mapMessage(data);
 }
@@ -185,7 +160,7 @@ export async function sendVoiceMessage(
 export async function getVoiceMessageUrl(mediaPath: string): Promise<string> {
   await ensureChatIdentity();
   const { data, error } = await supabase.storage.from('chat-voice').createSignedUrl(mediaPath, 60 * 60);
-  if (error || !data?.signedUrl) throw new Error(readableError(error));
+  if (error || !data?.signedUrl) throw new Error(readableSupabaseError(error));
   return data.signedUrl;
 }
 

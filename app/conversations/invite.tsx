@@ -8,6 +8,7 @@ import {
   SUPABASE_NOT_CONFIGURED_MESSAGE,
 } from '@/lib/conversations';
 import { isSupabaseConfigured } from '@/lib/pairing';
+import { SupabaseSetupNotice } from '@/components/SupabaseSetupNotice';
 import { Colors, Radius, Spacing, Typography } from '@/lib/theme';
 import { toPersianDigits } from '@/lib/format';
 
@@ -41,7 +42,8 @@ export default function InviteContactScreen() {
     // Without a real Supabase project neither anonymous sign-in nor the invite
     // RPC can work, so explain it instead of showing a raw network error.
     if (!configured) {
-      setError(SUPABASE_NOT_CONFIGURED_MESSAGE);
+      // The checklist card explains the setup; no red error line on top of it.
+      setError(null);
       return;
     }
     void createInvite();
@@ -107,7 +109,8 @@ export default function InviteContactScreen() {
           </View>
         )}
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {configured ? null : <SupabaseSetupNotice />}
+        {error && configured ? <Text style={styles.error}>{error}</Text> : null}
         <View style={styles.security}><ShieldCheck size={19} color={Colors.success[400]} /><Text style={styles.securityText}>پیام‌ها با قوانین امنیتی Supabase فقط برای دو عضو همان گفتگو قابل مشاهده هستند.</Text></View>
       </View>
     </View>

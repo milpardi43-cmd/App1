@@ -4,6 +4,8 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Bot, ChevronLeft, MessageCircle, Mic2, Plus, QrCode, ShieldCheck, Sparkles, UserRound } from 'lucide-react-native';
 import { AppBottomNav } from '@/components/AppBottomNav';
 import { listRealContacts, type RealContact } from '@/lib/conversations';
+import { isSupabaseConfigured } from '@/lib/pairing';
+import { SupabaseSetupNotice } from '@/components/SupabaseSetupNotice';
 import { Colors, Radius, Spacing, Typography } from '@/lib/theme';
 
 export default function ConversationsHome() {
@@ -12,8 +14,17 @@ export default function ConversationsHome() {
   const [loadingContacts, setLoadingContacts] = useState(true);
   const [contactsError, setContactsError] = useState<string | null>(null);
 
+  const configured = isSupabaseConfigured();
+
   useFocusEffect(
     useCallback(() => {
+      // Nothing to fetch without a real project; show the setup checklist
+      // instead of a failed request.
+      if (!configured) {
+        setLoadingContacts(false);
+        setContactsError(null);
+        return;
+      }
       let active = true;
       setLoadingContacts(true);
       listRealContacts()
@@ -29,7 +40,7 @@ export default function ConversationsHome() {
           if (active) setLoadingContacts(false);
         });
       return () => { active = false; };
-    }, []),
+    }, [configured]),
   );
 
   return (
@@ -65,6 +76,8 @@ export default function ConversationsHome() {
           <Text style={styles.sectionLabel}>مخاطبان واقعی</Text>
           <Text style={styles.sectionHint}>دعوت و تأیید دوطرفه</Text>
         </View>
+
+        {!configured ? <SupabaseSetupNotice /> : null}
 
         {loadingContacts ? (
           <View style={styles.loadingContacts}><ActivityIndicator color={Colors.primary[400]} /><Text style={styles.loadingText}>در حال دریافت مخاطبان…</Text></View>

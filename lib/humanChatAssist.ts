@@ -1,4 +1,5 @@
 import { getCourseProgress } from './courseProgress';
+import { requireSupabaseConfigured } from './errors';
 import { ensureChatIdentity } from './conversations';
 import { supabase } from './supabase';
 
@@ -16,6 +17,7 @@ export async function requestHumanChatAssist(
   draft: string,
   recentMessages: Array<{ mine: boolean; text: string }>,
 ): Promise<HumanAssistResult> {
+  requireSupabaseConfigured();
   await ensureChatIdentity();
   const progress = await getCourseProgress();
   const completed = progress.completedLessonIds.length;

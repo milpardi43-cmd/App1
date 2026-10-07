@@ -18,9 +18,14 @@
 ```bash
 npm install
 npm run typecheck
-npm run validate:content
+npm run validate:content   # ۱۲۹ درس و ۵۰۴ واژه
+npm run validate:logic     # تست منطق درس‌ها، مرور فاصله‌دار و ذخیره پیشرفت
 npm run dev -- --web
 ```
+
+`validate:logic` ماژول‌های واقعی اپ را در Node اجرا می‌کند (با stub کردن حافظه و Supabase)
+و هم مسیر بومی (AsyncStorage) و هم مسیر وب (localStorage) را بررسی می‌کند؛ اگر از .env
+قالب استفاده شده باشد یا کلیدها خالی باشند، همان‌جا هشدار می‌دهد.
 
 ## راه‌اندازی Backend با یک دستور
 
