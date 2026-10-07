@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowRight, Copy, Link2, QrCode, RefreshCw, Send, ShieldCheck, UserPlus } from 'lucide-react-native';
-import { claimRealContactInvite, createRealContactInvite } from '@/lib/conversations';
+import {
+  claimRealContactInvite,
+  createRealContactInvite,
+  SUPABASE_NOT_CONFIGURED_MESSAGE,
+} from '@/lib/conversations';
+import { isSupabaseConfigured } from '@/lib/pairing';
 import { Colors, Radius, Spacing, Typography } from '@/lib/theme';
 import { toPersianDigits } from '@/lib/format';
 
@@ -15,6 +20,10 @@ export default function InviteContactScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const createInvite = async () => {
+    if (!isSupabaseConfigured()) {
+      setError(SUPABASE_NOT_CONFIGURED_MESSAGE);
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -26,9 +35,17 @@ export default function InviteContactScreen() {
     }
   };
 
+  const configured = isSupabaseConfigured();
+
   useEffect(() => {
+    // Without a real Supabase project neither anonymous sign-in nor the invite
+    // RPC can work, so explain it instead of showing a raw network error.
+    if (!configured) {
+      setError(SUPABASE_NOT_CONFIGURED_MESSAGE);
+      return;
+    }
     void createInvite();
-  }, []);
+  }, [configured]);
 
   const shareInvite = async () => {
     if (!inviteCode) return;
@@ -37,6 +54,10 @@ export default function InviteContactScreen() {
 
   const claimInvite = async () => {
     if (code.length !== 6 || busy) return;
+    if (!isSupabaseConfigured()) {
+      setError(SUPABASE_NOT_CONFIGURED_MESSAGE);
+      return;
+    }
     setBusy(true);
     setError(null);
     try {

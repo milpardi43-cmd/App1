@@ -21,6 +21,12 @@ export interface DirectMessage {
   createdAt: string;
 }
 
+/** Shown when `.env` has no real Supabase project configured. */
+export const SUPABASE_NOT_CONFIGURED_MESSAGE =
+  'برای این بخش باید اتصال Supabase تنظیم شود. مقادیر EXPO_PUBLIC_SUPABASE_URL و ' +
+  'EXPO_PUBLIC_SUPABASE_ANON_KEY را در فایل .env بگذارید و سرور را یک‌بار با ' +
+  'npx expo start -c دوباره اجرا کنید.';
+
 function readableError(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error || '');
   if (/anonymous sign-ins|Anonymous sign-ins/i.test(message)) {
@@ -28,8 +34,17 @@ function readableError(error: unknown): string {
   }
   if (/invalid or expired/i.test(message)) return 'کد دعوت اشتباه است یا اعتبار آن تمام شده است.';
   if (/own invite/i.test(message)) return 'نمی‌توانید کد دعوت خودتان را وارد کنید.';
-  if (/relation .* does not exist|schema cache/i.test(message)) {
+  if (/could not find the function|function .* does not exist|schema cache/i.test(message)) {
+    // The invite RPCs live in supabase/SETUP-CONVERSATIONS.sql (shipped as a
+    // migration in supabase/migrations/). Until they are applied, no code can
+    // ever be generated — surface that instead of the raw Postgres text.
+    return 'توابع ساخت کد دعوت روی Supabase اجرا نشده‌اند. فایل supabase/SETUP-CONVERSATIONS.sql را در SQL Editor اجرا کنید یا ./scripts/setup-production.sh را بزنید.';
+  }
+  if (/relation .* does not exist/i.test(message)) {
     return 'جدول‌های مکالمه هنوز روی Supabase ساخته نشده‌اند.';
+  }
+  if (/fetch failed|failed to fetch|network ?error|load failed|timeout|timed out|ENOTFOUND|ERR_/i.test(message)) {
+    return 'ارتباط با سرور Supabase برقرار نشد. اتصال اینترنت دستگاه و درست بودن مقادیر .env را بررسی کنید.';
   }
   return message || 'ارتباط با سرور برقرار نشد.';
 }
