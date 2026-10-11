@@ -1,5 +1,7 @@
+import { requirePaidAI } from './paidAI';
 import { COURSE_LEVELS, SENTENCE_LESSONS } from './courseContent';
 import { ensureChatIdentity } from './conversations';
+import { requireSupabaseConfigured, readableFunctionError, readableAIError } from './errors';
 import { getCourseProgress } from './courseProgress';
 import { supabase } from './supabase';
 
@@ -49,6 +51,8 @@ export async function askEmma(
   messages: EmmaInputMessage[],
   options?: Partial<EmmaPracticeContext>,
 ): Promise<EmmaReply> {
+  requirePaidAI();
+  requireSupabaseConfigured();
   await ensureChatIdentity();
   const context = { ...await getEmmaPracticeContext(), ...options };
   const { data, error } = await supabase.functions.invoke('emma-chat', {
@@ -60,8 +64,8 @@ export async function askEmma(
       suggestionCount: context.suggestionCount,
     },
   });
-  if (error) throw new Error('سرویس Emma در دسترس نیست. اتصال اینترنت را بررسی کنید.');
-  if (data?.error) throw new Error(String(data.error));
+  if (error) throw new Error(await readableFunctionError(error));
+  if (data?.error) throw new Error(readableAIError(data));
   if (!data?.reply) throw new Error('پاسخی از Emma دریافت نشد.');
   return {
     reply: String(data.reply),

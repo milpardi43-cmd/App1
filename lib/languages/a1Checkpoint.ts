@@ -1,0 +1,37 @@
+import type { LearningUnit, LearningExercise } from './learningDesign';
+
+type Target={unitId:string;lessonId:string};
+export const CHECKPOINT_TARGETS:Record<string,Target>={};
+function make(id:string,title:string,items:{target:Target;goal:string;exercise:LearningExercise}[]):LearningUnit {
+ return {id,version:1,language:'de',level:'A1',title,lessons:[],oralMissionFa:'در کارگاه A1 فرم، پیام آزاد و سه گفت‌وگو را انجام دهید؛ این آزمون گفتار را نمی‌سنجد.',objectives:items.map((x,i)=>{const key=`${id}-goal-${i}`;CHECKPOINT_TARGETS[key]=x.target;return {id:key,canDoFa:x.goal};}),mission:items.map((x,i)=>({...x.exercise,id:`${id}-q-${i}`,objectiveId:`${id}-goal-${i}`}))};
+}
+function choice(skill:'reading'|'listening',text:string,question:string,labels:string[],correct:number,why:string,fa?:string):LearningExercise {
+ return {id:'',objectiveId:'',kind:'choice',skill,promptFa:question,explanationFa:why,...(skill==='reading'?{readingText:text}:{audioText:text,transcriptFa:fa}),choices:labels.map((label,i)=>({id:`c${i}`,label})),correctChoice:`c${correct}`};
+}
+function write(promptFa:string,acceptedAnswers:string[],hintFa:string,explanationFa:string):LearningExercise{return {id:'',objectiveId:'',kind:'write',skill:'writing',promptFa,acceptedAnswers,sample:acceptedAnswers[0],hintFa,explanationFa,taskNoteFa:'پاسخ الگویی با فهرست محدود بررسی می‌شود؛ نمره نوشتن آزاد نیست.'};}
+const t=(unit:string,lesson:string)=>({unitId:`de-a1-${unit}`,lessonId:lesson});
+export const A1_CHECKPOINT_A=make('de-a1-checkpoint-a','سنجش تکمیلی A1 — فرم الف',[
+ {target:t('contact','de-contact-alphabet'),goal:'نام هجی‌شده را تشخیص می‌دهم.',exercise:choice('listening','Ich buchstabiere meinen Namen: L, A, R, A.','نام کدام است؟',['Lara','Laura','Lena'],0,'چهار حرف L A R A نام Lara را می‌سازند.','نامم را هجی می‌کنم: L، A، R، A.')},
+ {target:t('contact','de-contact-form'),goal:'فیلدهای فرم را از متن پر می‌کنم.',exercise:choice('reading','Ich bin Alex Winter. Ich wohne in Bonn. Meine E-Mail-Adresse ist alex@example.com. Winter ist mein Nachname.','در فیلد Nachname چه باید نوشت؟',['Alex','Bonn','Winter'],2,'Nachname نام خانوادگی است، نه شهر یا نام کوچک.')},
+ {target:t('calendar','de-calendar-clock'),goal:'ساعت غیررسمی را تشخیص می‌دهم.',exercise:choice('listening','Wir treffen uns um Viertel vor neun, nicht um Viertel nach neun.','ساعت قرار چیست؟',['۹:۱۵','۸:۴۵','۹:۴۵'],1,'Viertel vor neun یک ربع مانده به نه است.','یک ربع به نه همدیگر را می‌بینیم، نه یک ربع بعد از نه.')},
+ {target:t('calendar','de-calendar-date'),goal:'تاریخ روز و ماه را از اعلان می‌فهمم.',exercise:choice('reading','Sommerfest: 21.06., ab 16 Uhr. Bitte bis zum 18.06. anmelden. Eintritt frei.','تاریخ جشن چیست؟',['۱۸ ژوئن','۲۱ ژوئن','۱۶ ژوئن'],1,'۱۸ مهلت ثبت‌نام و ۱۶ ساعت آغاز است.')},
+ {target:t('interests','de-interest-weather'),goal:'برنامه را با هوا تطبیق می‌دهم.',exercise:choice('listening','Am Samstag regnet es. Am Sonntag ist es warm und sonnig. Wir gehen am Sonntag in den Park.','چه روزی برای پارک انتخاب شده؟',['شنبه','جمعه','یکشنبه'],2,'Sonntag روز گرم و آفتابی و برنامه پارک است.','شنبه باران می‌بارد. یکشنبه گرم و آفتابی است. یکشنبه به پارک می‌رویم.')},
+ {target:t('interests','de-interest-clothes'),goal:'نیاز به اندازه لباس را بیان می‌کنم.',exercise:write('با Ich brauche بنویسید: «سایز L لازم دارم.»',['Ich brauche Größe L.'],'Größe + L','اندازه پس از Größe می‌آید.')},
+ {target:t('grammar','de-grammar-person'),goal:'فعل را با ضمیر جمع هماهنگ می‌کنم.',exercise:write('با Ihr بنویسید: «شما (دوستانه جمع) وقت دارید.»',['Ihr habt Zeit.'],'haben برای ihr به habt تبدیل می‌شود.','ihr با habt می‌آید، نه haben.')},
+ {target:t('grammar','de-grammar-questions'),goal:'اسم را درست نفی می‌کنم.',exercise:write('با Ich habe بنویسید: «ماشین ندارم.»',['Ich habe kein Auto.'],'das Auto → kein Auto','در این الگو kein برای نفی اسم است.')},
+ {target:t('real-life','de-real-notice'),goal:'ساعت کار متفاوت را می‌فهمم.',exercise:choice('reading','Laden: Montag bis Freitag 9–19 Uhr. Samstag nur 9–13 Uhr. Sonntag geschlossen.','شنبه ساعت ۱۴ چه وضعی دارد؟',['باز است','بسته است','متن مشخص نمی‌کند'],1,'شنبه ساعت ۱۳ بسته می‌شود.')},
+ {target:t('real-life','de-real-repair'),goal:'درخواست آهسته صحبت‌کردن می‌کنم.',exercise:write('با Sprechen Sie درخواست کنید: «لطفاً آهسته صحبت کنید.»',['Sprechen Sie bitte langsam.','Sprechen Sie langsam, bitte.'],'آهسته = langsam','الگوی درخواست رسمی با Sie به کار می‌رود.')},
+]);
+export const A1_CHECKPOINT_B=make('de-a1-checkpoint-b','سنجش تکمیلی A1 — فرم ب',[
+ {target:t('contact','de-contact-phone'),goal:'رقم‌های تماس را به ترتیب می‌گیرم.',exercise:choice('listening','Die Übungsnummer ist null, sechs, zwei, acht, vier.','شماره تمرینی کدام است؟',['06284','06824','06248'],0,'ترتیب ارقام ۰،۶،۲،۸،۴ است.','شماره تمرینی صفر، شش، دو، هشت، چهار است.')},
+ {target:t('contact','de-contact-address'),goal:'پلاک را از کد پستی جدا می‌کنم.',exercise:choice('reading','Anmeldung: Nora Klein, Parkstraße 16, 10115 Berlin. E-Mail: nora@example.com.','شماره ساختمان کدام است؟',['10115','16','115'],1,'۱۶ پس از نام خیابان پلاک است؛ ۱۰۱۱۵ کد پستی است.')},
+ {target:t('calendar','de-calendar-prices'),goal:'قیمت و مبلغ پرداخت را اشتباه نمی‌گیرم.',exercise:choice('listening','Das Buch kostet zwölf Euro fünfzig. Ich gebe Ihnen zwanzig Euro.','قیمت کتاب چقدر است؟',['20 €','12,15 €','12,50 €'],2,'۱۲٫۵۰ قیمت و ۲۰ مبلغ پرداختی است.','کتاب دوازده یورو و پنجاه سنت است. بیست یورو به شما می‌دهم.')},
+ {target:t('calendar','de-calendar-months'),goal:'ماه را در پیام می‌فهمم.',exercise:choice('reading','Der Kurs beginnt im September. Im August gibt es keinen Unterricht. Bitte melden Sie sich im Juli an.','شروع کلاس در کدام ماه است؟',['ژوئیه','سپتامبر','اوت'],1,'ثبت‌نام در ژوئیه است؛ شروع در سپتامبر.')},
+ {target:t('interests','de-interest-hobby'),goal:'علاقه فرد را می‌فهمم.',exercise:choice('listening','Ich lese nicht gern. Am Wochenende schwimme ich gern und höre Musik.','کدام فعالیت را دوست ندارد؟',['شنا','موسیقی گوش‌دادن','مطالعه'],2,'nicht gern فقط درباره lesen است.','مطالعه را دوست ندارم. آخر هفته شناکردن و موسیقی گوش‌دادن را دوست دارم.')},
+ {target:t('interests','de-interest-invite'),goal:'دعوت را مؤدبانه رد می‌کنم.',exercise:write('با Leider بنویسید: «متأسفانه نمی‌توانم بیایم.»',['Leider kann ich nicht kommen.'],'kann ich + nicht + kommen','فعل کمکی جای دوم و مصدر در پایان می‌آید.')},
+ {target:t('grammar','de-grammar-articles'),goal:'جمع و فعل جمع را به کار می‌برم.',exercise:write('با Hier sind بنویسید: «اینجا سه کتاب هست.» عدد را به حروف بنویسید.',['Hier sind drei Bücher.'],'das Buch → die Bücher','drei با اسم جمع و sind می‌آید.')},
+ {target:t('grammar','de-grammar-modals'),goal:'فعل کمکی را با مصدر ترکیب می‌کنم.',exercise:write('با Wir müssen بنویسید: «ما باید امروز کار کنیم.»',['Wir müssen heute arbeiten.'],'مصدر arbeiten در پایان.','müssen برای wir صرف شده است؛ arbeiten مصدر می‌ماند.')},
+ {target:t('real-life','de-real-change'),goal:'تغییر زمان و مکان را پیگیری می‌کنم.',exercise:choice('reading','Hallo Alex, wir treffen uns heute um 17 Uhr, nicht um 16 Uhr. Bitte warte vor dem Kino, nicht im Café. Bis später, Ben','قرار جدید کدام است؟',['۱۶، کافه','۱۷، جلوی سینما','۱۷، داخل کافه'],1,'هر دو اطلاعات قبلی نفی شده‌اند؛ زمان ۱۷ و مکان جلوی سینماست.')},
+ {target:t('real-life','de-real-health'),goal:'حال نامساعد را بیان می‌کنم.',exercise:write('با Mir بنویسید: «حالم خوب نیست.»',['Mir geht es nicht gut.',"Mir geht's nicht gut."], 'Mir geht es …','nicht gut حال نامساعد را توصیف می‌کند.')},
+]);
+export const A1_CHECKPOINTS=[A1_CHECKPOINT_A,A1_CHECKPOINT_B] as const;

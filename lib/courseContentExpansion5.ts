@@ -12,7 +12,7 @@ export const ADVANCED_SENTENCE_LESSONS_4: SentenceLesson[] = [
       { id: 'farm-vigor', en: 'The young plants are growing with vigor.', fa: 'گیاهان جوان با قدرت رشد می‌کنند.', pronunciation: 'ذِ یانگ پِلَنتس آر گروئینگ ویذ ویگِر', vocabulary: [{ word: 'vigor', meaning: 'قدرت و انرژی', essential504: true }] },
       { id: 'farm-prosper', en: 'Small farms can prosper through cooperation.', fa: 'مزرعه‌های کوچک می‌توانند با همکاری پیشرفت کنند.', pronunciation: 'اِسمال فارمز کَن پراسپِر ثرو کوآپِرِیشِن', vocabulary: [{ word: 'prosper', meaning: 'رونق گرفتن / پیشرفت کردن', essential504: true }] },
       { id: 'farm-weather', en: 'We should check the weather every morning.', fa: 'باید هر صبح وضعیت هوا را بررسی کنیم.', pronunciation: 'وی شود چِک ذِ وِذِر اِوری مورنینگ', vocabulary: [{ word: 'weather', meaning: 'وضعیت هوا' }] },
-      { id: 'farm-share', en: 'Let us share equipment to reduce costs.', fa: 'برای کاهش هزینه‌ها تجهیزات را مشترک استفاده کنیم.', pronunciation: 'لِت آس شِر اِکویپمِنت تو ریدیوس کاستس', vocabulary: [{ word: 'cooperation', meaning: 'همکاری' }] },
+      { id: 'farm-share', en: 'Cooperation helps us share equipment and lower costs.', fa: 'همکاری کمک می‌کند تجهیزات را به‌اشتراک بگذاریم و هزینه‌ها را کاهش دهیم.', pronunciation: 'کوآپِرِیشِن هِلپس اَس شِر اِکویپمِنت اَند لوئِر کاستس', vocabulary: [{ word: 'cooperation', meaning: 'همکاری' }] },
     ],
     dialogue: [
       { speaker: 'partner', text: 'When does the harvest begin?', fa: 'برداشت چه زمانی آغاز می‌شود؟' },
@@ -50,7 +50,7 @@ export const ADVANCED_SENTENCE_LESSONS_4: SentenceLesson[] = [
       { id: 'route-detour', en: 'We should take a short detour around the cliff.', fa: 'باید از یک مسیر فرعی کوتاه دور صخره برویم.', pronunciation: 'وی شود تِیک اَ شورت دیتور اَرَوند ذِ کِلیف', vocabulary: [{ word: 'detour', meaning: 'مسیر انحرافی', essential504: true }] },
       { id: 'route-panic', en: 'Do not panic if you lose sight of the trail.', fa: 'اگر مسیر از دیدتان خارج شد وحشت نکنید.', pronunciation: 'دو نات پَنیک ایف یو لوز سایت آو ذِ تِرِیل', vocabulary: [{ word: 'panic', meaning: 'وحشت کردن', essential504: true }] },
       { id: 'route-rest', en: 'Let us rest before we continue.', fa: 'پیش از ادامه کمی استراحت کنیم.', pronunciation: 'لِت آس رِست بیفور وی کِنتینیو', vocabulary: [{ word: 'rest', meaning: 'استراحت کردن' }] },
-      { id: 'route-together', en: 'Stay together and follow the marked signs.', fa: 'کنار هم بمانید و علامت‌ها را دنبال کنید.', pronunciation: 'اِستِی توگِذِر اَند فالو ذِ مارکت ساینز', vocabulary: [{ word: 'trail', meaning: 'مسیر پیاده‌روی' }] },
+      { id: 'route-together', en: 'Stay together on the trail and follow the marked signs.', fa: 'در مسیر پیاده‌روی کنار هم بمانید و تابلوهای راهنما را دنبال کنید.', pronunciation: 'اِستِی توگِذِر آن ذِ تْرِیل اَند فالو ذِ مارکت ساینز', vocabulary: [{ word: 'trail', meaning: 'مسیر پیاده‌روی' }] },
     ],
     dialogue: [
       { speaker: 'partner', text: 'Why are we stopping?', fa: 'چرا توقف می‌کنیم؟' },

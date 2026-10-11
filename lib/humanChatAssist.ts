@@ -1,4 +1,6 @@
+import { requirePaidAI } from './paidAI';
 import { getCourseProgress } from './courseProgress';
+import { requireSupabaseConfigured, readableFunctionError, readableAIError } from './errors';
 import { ensureChatIdentity } from './conversations';
 import { supabase } from './supabase';
 
@@ -16,6 +18,8 @@ export async function requestHumanChatAssist(
   draft: string,
   recentMessages: Array<{ mine: boolean; text: string }>,
 ): Promise<HumanAssistResult> {
+  requirePaidAI();
+  requireSupabaseConfigured();
   await ensureChatIdentity();
   const progress = await getCourseProgress();
   const completed = progress.completedLessonIds.length;
@@ -32,8 +36,8 @@ export async function requestHumanChatAssist(
       })),
     },
   });
-  if (error) throw new Error('دستیار خصوصی در دسترس نیست. اتصال اینترنت را بررسی کنید.');
-  if (data?.error) throw new Error(String(data.error));
+  if (error) throw new Error(await readableFunctionError(error));
+  if (data?.error) throw new Error(readableAIError(data));
   const primary = String(data?.primary || '').trim();
   if (!primary) throw new Error('پاسخ معتبری از دستیار دریافت نشد.');
   return {

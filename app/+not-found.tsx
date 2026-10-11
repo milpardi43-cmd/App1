@@ -1,16 +1,15 @@
-import { Link, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
+import { PageNavigation } from '@/components/PageNavigation';
 import { StyleSheet, Text, View } from 'react-native';
-import { Colors, Typography, Spacing } from '@/lib/theme';
+import { Colors, Typography } from '@/lib/theme';
 
 export default function NotFoundScreen() {
   return (
     <>
       <Stack.Screen options={{ title: 'صفحه یافت نشد' }} />
       <View style={styles.container}>
+        <PageNavigation tone="dark" backFallback="/languages" />
         <Text style={styles.title}>صفحه مورد نظر یافت نشد</Text>
-        <Link href="/" style={styles.link}>
-          بازگشت به داشبورد
-        </Link>
       </View>
     </>
   );
@@ -28,11 +27,5 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.xl,
     fontWeight: Typography.weights.bold,
     color: Colors.neutral[0],
-  },
-  link: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.md,
-    color: Colors.accent[400],
-    marginTop: Spacing.md,
   },
 });

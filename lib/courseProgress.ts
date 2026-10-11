@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { SENTENCE_LESSONS } from './courseContent';
-import { getEssential504WordsForLesson } from './essential504';
+import { EVERYDAY_EXPANSION_LESSON_IDS, FOUNDATION_EXPANSION_LESSON_IDS, SENTENCE_LESSONS, SURVIVAL_EXPANSION_LESSON_IDS } from './courseContent';
 import { supabase } from './supabase';
 
 const KEY = 'sentence_course_progress_v1';
@@ -28,7 +27,7 @@ export interface CourseProgress {
   /** Kept for backward compatibility with early preview installs. */
   reviewSentenceIds: string[];
   reviewCards: SentenceReviewCard[];
-  /** Internal coverage only; this does not add a new section to the lesson UI. */
+  /** Historical, unverified coverage from older versions; never a mastery score. */
   learnedEssential504Words: string[];
   dailyGoalMinutes: number;
   todayMinutes: number;
@@ -62,6 +61,44 @@ function initialProgress(): CourseProgress {
 }
 
 const reviewCardId = (lessonId: string, sentenceId: string) => `${lessonId}:${sentenceId}`;
+const FOUNDATION_EXPANSION_IDS = new Set<string>(FOUNDATION_EXPANSION_LESSON_IDS);
+const SURVIVAL_EXPANSION_IDS = new Set<string>(SURVIVAL_EXPANSION_LESSON_IDS);
+const EVERYDAY_EXPANSION_IDS = new Set<string>(EVERYDAY_EXPANSION_LESSON_IDS);
+
+function currentLessonAfterCurriculumExpansion(value: Partial<CourseProgress>, completedLessonIds: string[], base: CourseProgress) {
+  const storedId = typeof value.currentLessonId === 'string' && SENTENCE_LESSONS.some(lesson => lesson.id === value.currentLessonId)
+    ? value.currentLessonId
+    : base.currentLessonId;
+  const storedIndex = SENTENCE_LESSONS.findIndex(lesson => lesson.id === storedId);
+  const lastOriginalFoundationIndex = SENTENCE_LESSONS.findIndex(lesson => lesson.id === 'foundation-buying-something');
+  const firstUnfinishedFoundation = FOUNDATION_EXPANSION_LESSON_IDS.find(id => !completedLessonIds.includes(id));
+
+  // Returning learners who had moved beyond the old three-lesson Foundation block
+  // are offered its new lessons before continuing, without undoing any completed work.
+  if (!FOUNDATION_EXPANSION_IDS.has(storedId) && storedIndex > lastOriginalFoundationIndex && firstUnfinishedFoundation) {
+    return firstUnfinishedFoundation;
+  }
+
+  const firstUnfinishedSurvival = SURVIVAL_EXPANSION_LESSON_IDS.find(id => !completedLessonIds.includes(id));
+  const lastOriginalSurvivalIndex = SENTENCE_LESSONS.findIndex(lesson => lesson.id === 'survival-renting-a-home');
+  const isPreviouslyPublishedLesson = !FOUNDATION_EXPANSION_IDS.has(storedId)
+    && !SURVIVAL_EXPANSION_IDS.has(storedId)
+    && !EVERYDAY_EXPANSION_IDS.has(storedId);
+
+  // Existing learners are guided through inserted Survival material first.
+  if (isPreviouslyPublishedLesson && storedIndex > lastOriginalSurvivalIndex && firstUnfinishedSurvival) {
+    return firstUnfinishedSurvival;
+  }
+
+  const firstUnfinishedEveryday = EVERYDAY_EXPANSION_LESSON_IDS.find(id => !completedLessonIds.includes(id));
+  const lastOriginalEverydayIndex = SENTENCE_LESSONS.findIndex(lesson => lesson.id === 'everyday-handling-an-emergency');
+  // Learners whose saved position is beyond the five original Everyday lessons
+  // complete the new modules before returning to their prior course position.
+  if (isPreviouslyPublishedLesson && storedIndex > lastOriginalEverydayIndex && firstUnfinishedEveryday) {
+    return firstUnfinishedEveryday;
+  }
+  return storedId;
+}
 
 function cardsForLesson(lessonId: string, dueAt = new Date()): SentenceReviewCard[] {
   const lesson = SENTENCE_LESSONS.find((item) => item.id === lessonId);
@@ -97,6 +134,7 @@ function normalizeProgress(value: Partial<CourseProgress>): CourseProgress {
     ...base,
     ...value,
     completedLessonIds,
+    currentLessonId: currentLessonAfterCurriculumExpansion(value, completedLessonIds, base),
     reviewSentenceIds: Array.isArray(value.reviewSentenceIds) ? value.reviewSentenceIds : [],
     reviewCards: Array.from(cardMap.values()),
     learnedEssential504Words: Array.isArray(value.learnedEssential504Words) ? value.learnedEssential504Words : [],
@@ -215,18 +253,22 @@ export async function completeSentenceLesson(lessonId: string, nextLessonId?: st
   cardsForLesson(lessonId).forEach((card) => {
     if (!cardMap.has(card.id)) cardMap.set(card.id, card);
   });
+  const completedLessonIds = Array.from(new Set([...current.completedLessonIds, lessonId]));
+  const completedSet = new Set(completedLessonIds);
+  const currentIndex = SENTENCE_LESSONS.findIndex(lesson => lesson.id === current.currentLessonId);
+  const requestedNextIndex = nextLessonId ? SENTENCE_LESSONS.findIndex(lesson => lesson.id === nextLessonId) : -1;
+  const advancesPath = requestedNextIndex > currentIndex;
+  const nextUncompletedLesson = advancesPath
+    ? SENTENCE_LESSONS.slice(requestedNextIndex).find(lesson => !completedSet.has(lesson.id))
+    : undefined;
   const next = addDailyActivity({
     ...current,
-    completedLessonIds: Array.from(new Set([...current.completedLessonIds, lessonId])),
+    completedLessonIds,
     reviewCards: Array.from(cardMap.values()),
-    learnedEssential504Words: Array.from(
-      new Set([
-        ...current.learnedEssential504Words,
-        ...getEssential504WordsForLesson(lessonId),
-      ]),
-    ),
-    currentLessonId: nextLessonId ?? current.currentLessonId,
-  }, 8);
+    // Historical coverage is retained, but page completion is not evidence of word mastery.
+    learnedEssential504Words: current.learnedEssential504Words,
+    currentLessonId: advancesPath ? nextUncompletedLesson?.id ?? nextLessonId! : current.currentLessonId,
+  }, 0);
   return saveProgress(next);
 }
 
@@ -286,7 +328,7 @@ export async function rateReviewCard(
   const next = addDailyActivity({
     ...progress,
     reviewCards: progress.reviewCards.map((item) => item.id === cardId ? updated : item),
-  }, 1, now);
+  }, 0, now);
   await saveProgress(next);
   return updated;
 }

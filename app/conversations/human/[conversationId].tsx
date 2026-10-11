@@ -10,7 +10,7 @@ import {
   useAudioRecorder,
   useAudioRecorderState,
 } from 'expo-audio';
-import { ArrowRight, Check, Languages, Lightbulb, Mic, MicOff, Pause, Phone, PhoneOff, Play, Send, ShieldCheck, Sparkles, Square, UserRound } from 'lucide-react-native';
+import { Check, Languages, Lightbulb, Mic, MicOff, Pause, Phone, PhoneOff, Play, Send, ShieldCheck, Sparkles, Square, UserRound } from 'lucide-react-native';
 import {
   currentChatUserId,
   getVoiceMessageUrl,
@@ -24,6 +24,7 @@ import {
 import { requestHumanChatAssist, type HumanAssistMode, type HumanAssistResult } from '@/lib/humanChatAssist';
 import { useVoiceCall } from '@/lib/voiceCall';
 import { Colors, Radius, Spacing, Typography } from '@/lib/theme';
+import { PageNavigation } from '@/components/PageNavigation';
 
 function VoiceMessage({ message }: { message: DirectMessage }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -173,7 +174,7 @@ export default function HumanConversationScreen() {
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
-        <Pressable style={styles.back} onPress={() => router.back()}><ArrowRight size={20} color={Colors.neutral[200]} /></Pressable>
+        <PageNavigation tone="dark" backFallback="/conversations" />
         <View style={styles.avatar}><UserRound size={22} color={Colors.primary[300]} /></View>
         <View style={styles.headerText}><Text style={styles.name}>{name || 'مخاطب واقعی'}</Text><Text style={styles.status}>{call.phase === 'connected' ? 'تماس امن برقرار است' : 'گفتگوی خصوصی'}</Text></View>
         <Pressable style={styles.callButton} disabled={call.phase !== 'idle'} onPress={() => void call.startCall()}><Phone size={19} color={call.phase === 'idle' ? Colors.success[300] : Colors.neutral[600]} /></Pressable>
@@ -251,7 +252,6 @@ export default function HumanConversationScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.neutral[950] },
   header: { paddingTop: 50, paddingHorizontal: Spacing.md, paddingBottom: Spacing.sm, minHeight: 104, backgroundColor: Colors.neutral[900], borderBottomWidth: 1, borderBottomColor: Colors.neutral[800], flexDirection: 'row-reverse', alignItems: 'center', gap: Spacing.sm },
-  back: { width: 39, height: 39, borderRadius: Radius.md, backgroundColor: Colors.neutral[850], alignItems: 'center', justifyContent: 'center' },
   avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: Colors.primary[500] + '15', alignItems: 'center', justifyContent: 'center' },
   headerText: { flex: 1 },
   name: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, color: Colors.neutral[100], textAlign: 'right' },

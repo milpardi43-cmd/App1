@@ -1,7 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { BookOpen, MessageCircle, RefreshCw } from 'lucide-react-native';
-import { Colors, Radius, Spacing, Typography } from '@/lib/theme';
+import { Radius, Typography } from '@/lib/theme';
+import { EnglishPalette as Palette } from '@/components/EnglishSupplementTask';
 
 const items = [
   { path: '/lang', label: 'یادگیری', icon: BookOpen },
@@ -19,9 +20,9 @@ export function AppBottomNav() {
         const active = pathname === item.path || pathname.startsWith(`${item.path}/`);
         const Icon = item.icon;
         return (
-          <Pressable key={item.path} style={styles.item} onPress={() => router.replace(item.path as never)}>
+          <Pressable key={item.path} accessibilityRole="button" accessibilityState={{ selected: active }} style={styles.item} onPress={() => router.replace(item.path as never)}>
             <View style={[styles.iconWrap, active && styles.iconWrapActive]}>
-              <Icon size={20} color={active ? Colors.onColor : Colors.neutral[500]} strokeWidth={active ? 2.4 : 2} />
+              <Icon size={19} color={active ? Palette.primary : Palette.muted} strokeWidth={active ? 2.4 : 2} />
             </View>
             <Text style={[styles.label, active && styles.labelActive]}>{item.label}</Text>
           </Pressable>
@@ -33,26 +34,34 @@ export function AppBottomNav() {
 
 const styles = StyleSheet.create({
   shell: {
-    minHeight: 76,
-    paddingTop: 8,
-    paddingBottom: 12,
-    paddingHorizontal: Spacing.lg,
+    minHeight: 68,
+    marginHorizontal: 14,
+    marginBottom: 8,
+    paddingTop: 7,
+    paddingBottom: 9,
+    paddingHorizontal: 12,
     flexDirection: 'row-reverse',
     alignItems: 'center',
     justifyContent: 'space-around',
-    backgroundColor: Colors.neutral[900],
-    borderTopWidth: 1,
-    borderTopColor: Colors.neutral[800],
+    backgroundColor: Palette.surface,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    borderRadius: 22,
+    shadowColor: '#1D2345',
+    shadowOpacity: 0.1,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 5,
   },
-  item: { minWidth: 76, alignItems: 'center', gap: 3 },
+  item: { flex: 1, minWidth: 76, alignItems: 'center', gap: 2 },
   iconWrap: {
     width: 42,
-    height: 34,
+    height: 32,
     borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconWrapActive: { backgroundColor: Colors.accent[500] },
-  label: { fontFamily: Typography.fontFamily, fontSize: 11, color: Colors.neutral[500] },
-  labelActive: { color: Colors.neutral[100], fontWeight: Typography.weights.bold },
+  iconWrapActive: { backgroundColor: Palette.primarySoft },
+  label: { fontFamily: Typography.fontFamily, fontSize: 10, color: Palette.muted },
+  labelActive: { color: Palette.primaryDark, fontWeight: Typography.weights.bold },
 });

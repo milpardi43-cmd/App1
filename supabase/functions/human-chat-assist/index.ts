@@ -9,6 +9,8 @@ type AssistMode = 'translate' | 'correct' | 'suggest';
 
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  if(Deno.env.get('PAID_AI_ENABLED') !== 'true') return json({error:'Paid AI is disabled',code:'PAID_AI_DISABLED'},503);
+
   try {
     const authHeader = request.headers.get('Authorization');
     if (!authHeader) return json({ error: 'Authentication required' }, 401);

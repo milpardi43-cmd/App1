@@ -4,10 +4,8 @@
 
 import React from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
 import {
-  ChevronRight,
   Volume2,
   Sparkles,
   Users,
@@ -24,6 +22,7 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import { Colors, Typography, Spacing, Radius } from '@/lib/theme';
+import { PageNavigation } from '@/components/PageNavigation';
 
 /** Map the icon names stored in the curriculum to real components. */
 export const LESSON_ICONS: Record<string, LucideIcon> = {
@@ -70,17 +69,14 @@ export async function speakEnglish(text: string): Promise<void> {
 }
 
 /** Nice top bar for the mini-app screens: page title + back arrow on the right (RTL). */
-export function AgentTopBar({ title, subtitle }: { title: string; subtitle?: string }) {
-  const router = useRouter();
+export function AgentTopBar({ title, subtitle, alignRight = false, backFallback = '/languages' }: { title: string; subtitle?: string; alignRight?: boolean; backFallback?: string }) {
   return (
     <View style={topBarStyles.bar}>
-      <View style={topBarStyles.texts}>
-        <Text style={topBarStyles.title}>{title}</Text>
-        {subtitle ? <Text style={topBarStyles.subtitle}>{subtitle}</Text> : null}
+      <PageNavigation tone="dark" backFallback={backFallback} />
+      <View style={[topBarStyles.texts, alignRight && topBarStyles.alignRightTexts]}>
+        <Text style={[topBarStyles.title, alignRight && topBarStyles.alignRightText]}>{title}</Text>
+        {subtitle ? <Text style={[topBarStyles.subtitle, alignRight && topBarStyles.alignRightText]}>{subtitle}</Text> : null}
       </View>
-      <Pressable style={topBarStyles.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace('/lang'))}>
-        <ChevronRight size={20} color={Colors.neutral[200]} strokeWidth={2.5} />
-      </Pressable>
     </View>
   );
 }
@@ -98,18 +94,22 @@ const topBarStyles = StyleSheet.create({
     borderBottomColor: Colors.neutral[800],
   },
   texts: { flex: 1, alignItems: 'flex-end' },
+  alignRightTexts: { alignItems: 'stretch' },
+  alignRightText: { width: '100%', alignSelf: 'stretch', textAlign: 'right', writingDirection: 'rtl' },
   title: {
     fontFamily: Typography.fontFamily,
     fontSize: Typography.sizes.xl,
     fontWeight: Typography.weights.bold,
     color: Colors.neutral[0],
     textAlign: 'right',
+    writingDirection: 'rtl',
   },
   subtitle: {
     fontFamily: Typography.fontFamily,
     fontSize: Typography.sizes.xs,
     color: Colors.neutral[400],
     textAlign: 'right',
+    writingDirection: 'rtl',
     marginTop: 2,
   },
   backBtn: {

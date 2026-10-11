@@ -4,13 +4,23 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "EXPO_NO_TELEMETRY=1 expo start",
-    "build:web": "expo export --platform web",
+    "dev": "EXPO_NO_TELEMETRY=1 node scripts/run-expo.mjs start",
+    "build:web": "node scripts/run-expo.mjs export --platform web --clear",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "validate:content": "node scripts/validate-course-content.mjs",
-    "android": "expo run:android",
-    "ios": "expo run:ios"
+    "android": "node scripts/run-expo.mjs run:android",
+    "ios": "node scripts/run-expo.mjs run:ios",
+    "validate:logic": "node scripts/verify-app-logic.mjs",
+    "validate:admin": "node scripts/verify-education-admin.mjs",
+    "validate:a1": "node scripts/verify-a1-editorial.cjs",
+    "validate:german-levels": "node scripts/verify-german-completion.cjs",
+    "validate:russian": "node scripts/verify-russian-course.cjs",
+    "validate:russian-architecture": "node scripts/verify-russian-architecture.cjs",
+    "validate:english-supplement": "node scripts/verify-english-supplement.cjs",
+    "validate:english-engine": "node scripts/verify-english-engine.cjs",
+    "validate:english-four": "node scripts/verify-english-four.cjs",
+    "prebuild:web": "node scripts/check-public-connection.mjs"
   },
   "dependencies": {
     "@config-plugins/react-native-webrtc": "^13.0.0",
@@ -59,8 +69,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@electric-sql/pglite": "^0.5.8",
     "@types/react": "~19.1.10",
     "babel-plugin-module-resolver": "^5.0.3",
+    "esbuild": "^0.28.2",
     "typescript": "~5.9.2"
   }
 }

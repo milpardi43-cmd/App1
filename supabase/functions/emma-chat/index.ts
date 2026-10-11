@@ -13,6 +13,8 @@ interface InputMessage {
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
+  if(Deno.env.get('PAID_AI_ENABLED') !== 'true') return json({error:'Paid AI is disabled',code:'PAID_AI_DISABLED'},503);
+
   try {
     const authHeader = request.headers.get('Authorization');
     if (!authHeader) return json({ error: 'Authentication required' }, 401);
@@ -30,10 +32,12 @@ Deno.serve(async (request) => {
       p_limit: 100,
     });
     if (usageError) console.error('Usage-limit check failed', usageError);
-    if (allowed === false) return json({ error: 'Daily Emma practice limit reached' }, 429);
+    if (allowed === false) return json({ error: 'Daily Emma practice limit reached', code: 'DAILY_LIMIT' }, 429);
 
-    const apiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!apiKey) return json({ error: 'OPENAI_API_KEY is not configured' }, 503);
+    const apiKey = Deno.env.get('OPENAI_API_KEY')?.trim();
+    if (!apiKey) return json({ error: 'AI configuration unavailable', code: 'AI_NOT_CONFIGURED' }, 503);
+
+    if (!/^[\x21-\x7E]+$/.test(apiKey)) return json({ error: 'AI configuration invalid', code: 'AI_KEY_INVALID' }, 503);
 
     const body = await request.json();
     const level = typeof body.level === 'string' ? body.level.slice(0, 80) : 'Foundation';
@@ -72,9 +76,16 @@ Do not include markdown.`;
     });
 
     if (!response.ok) {
-      const detail = await response.text();
-      console.error('OpenAI error', response.status, detail);
-      return json({ error: 'AI provider request failed' }, 502);
+      const detail = await response.json().catch(() => null);
+      const providerCode = detail?.error?.code;
+      const quota = providerCode === 'insufficient_quota' || providerCode === 'credit_balance_exhausted'
+        || detail?.error?.type === 'insufficient_quota';
+      const code = quota ? 'AI_QUOTA_EXHAUSTED'
+        : response.status === 429 ? 'AI_RATE_LIMITED'
+        : response.status === 401 ? 'AI_KEY_INVALID' : 'AI_PROVIDER_ERROR';
+      // Never log the key, request headers, or arbitrary upstream response bodies.
+      console.error('AI provider failure', response.status, code);
+      return json({ error: 'AI provider request failed', code }, quota ? 503 : response.status === 429 ? 429 : 502);
     }
 
     const completion = await response.json();
@@ -89,8 +100,8 @@ Do not include markdown.`;
       suggestions: Array.isArray(result.suggestions) ? result.suggestions.slice(0, suggestionCount).map(String) : [],
     });
   } catch (error) {
-    console.error(error);
-    return json({ error: error instanceof Error ? error.message : 'Unexpected server error' }, 500);
+    console.error('Emma request failed', error instanceof Error ? error.name : 'UnknownError');
+    return json({ error: 'Unexpected server error', code: 'AI_SERVER_ERROR' }, 500);
   }
 });
 

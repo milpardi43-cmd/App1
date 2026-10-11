@@ -14,11 +14,19 @@ import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { getPairingState, isOnboardingComplete } from '@/lib/storage';
 import { isSupabaseConfigured } from '@/lib/pairing';
+import { RtlDirection } from '@/lib/theme';
 import { useRealAgent } from '@/lib/useRealAgent';
 
 I18nManager.forceRTL(true);
 I18nManager.allowRTL(true);
 SplashScreen.preventAutoHideAsync();
+
+function RuntimeGate() {
+  const pathname = usePathname();
+  // The multi-language learning app never mounts the legacy device runtime.
+  if (!pathname.startsWith('/agent') && !pathname.startsWith('/permissions')) return null;
+  return <CompanionRuntime />;
+}
 
 function CompanionRuntime() {
   const pathname = usePathname();
@@ -49,6 +57,7 @@ function CompanionRuntime() {
  */
 export default function RootLayout() {
   useFrameworkReady();
+  const pathname = usePathname();
   const [fontsLoaded, fontError] = useFonts({
     Vazirmatn: Vazirmatn_400Regular,
     'Vazirmatn-Medium': Vazirmatn_500Medium,
@@ -64,8 +73,8 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ErrorBoundary>
-        <View style={{ flex: 1, direction: 'rtl' }}>
-          <CompanionRuntime />
+        <View style={{ flex: 1, ...RtlDirection }}>
+          <RuntimeGate />
           <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
             <Stack.Screen name="index" />
             <Stack.Screen name="agent" />
@@ -73,7 +82,7 @@ export default function RootLayout() {
             <Stack.Screen name="lang/index" />
             <Stack.Screen name="+not-found" />
           </Stack>
-          <StatusBar style="light" />
+          <StatusBar style={pathname === '/lang' || pathname === '/languages' ? 'dark' : 'light'} />
         </View>
       </ErrorBoundary>
     </SafeAreaProvider>

@@ -1,5 +1,6 @@
 import type { RealtimeChannel, User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
+import { readableSupabaseError } from './errors';
 
 export interface RealContact {
   id: string;
@@ -21,25 +22,14 @@ export interface DirectMessage {
   createdAt: string;
 }
 
-function readableError(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error || '');
-  if (/anonymous sign-ins|Anonymous sign-ins/i.test(message)) {
-    return 'ورود ناشناس در تنظیمات Authentication پروژه Supabase فعال نشده است.';
-  }
-  if (/invalid or expired/i.test(message)) return 'کد دعوت اشتباه است یا اعتبار آن تمام شده است.';
-  if (/own invite/i.test(message)) return 'نمی‌توانید کد دعوت خودتان را وارد کنید.';
-  if (/relation .* does not exist|schema cache/i.test(message)) {
-    return 'جدول‌های مکالمه هنوز روی Supabase ساخته نشده‌اند.';
-  }
-  return message || 'ارتباط با سرور برقرار نشد.';
-}
+export { SUPABASE_NOT_CONFIGURED_MESSAGE, readableSupabaseError } from './errors';
 
 export async function ensureChatIdentity(displayName = 'زبان‌آموز'): Promise<User> {
   const { data: sessionData } = await supabase.auth.getSession();
   let user = sessionData.session?.user ?? null;
   if (!user) {
     const { data, error } = await supabase.auth.signInAnonymously();
-    if (error || !data.user) throw new Error(readableError(error));
+    if (error || !data.user) throw new Error(readableSupabaseError(error));
     user = data.user;
   }
 
@@ -47,14 +37,14 @@ export async function ensureChatIdentity(displayName = 'زبان‌آموز'): P
     { id: user.id, display_name: displayName, last_seen: new Date().toISOString() },
     { onConflict: 'id' },
   );
-  if (profileError) throw new Error(readableError(profileError));
+  if (profileError) throw new Error(readableSupabaseError(profileError));
   return user;
 }
 
 export async function createRealContactInvite(displayName = 'زبان‌آموز'): Promise<string> {
   await ensureChatIdentity(displayName);
   const { data, error } = await supabase.rpc('create_contact_invite', { p_display_name: displayName });
-  if (error || typeof data !== 'string') throw new Error(readableError(error));
+  if (error || typeof data !== 'string') throw new Error(readableSupabaseError(error));
   return data;
 }
 
@@ -64,7 +54,7 @@ export async function claimRealContactInvite(code: string, displayName = 'زبا
     p_code: code.trim(),
     p_display_name: displayName,
   });
-  if (error || typeof data !== 'string') throw new Error(readableError(error));
+  if (error || typeof data !== 'string') throw new Error(readableSupabaseError(error));
   return data;
 }
 
@@ -72,14 +62,22 @@ export async function listRealContacts(): Promise<RealContact[]> {
   await ensureChatIdentity();
   const { data, error } = await supabase
     .from('learning_contacts')
-    .select(
-      'conversation_id,created_at,contact:profiles!learning_contacts_contact_id_fkey(id,display_name,avatar_emoji,english_level,last_seen)',
-    )
+    .select('conversation_id,created_at,contact_id')
     .order('created_at', { ascending: false });
-  if (error) throw new Error(readableError(error));
+  if (error) throw new Error(readableSupabaseError(error));
 
-  return ((data || []) as any[]).flatMap((row) => {
-    const contact = Array.isArray(row.contact) ? row.contact[0] : row.contact;
+  if (!data?.length) return [];
+  // contact_id references auth.users, not profiles. Fetch profiles separately;
+  // both queries remain subject to the current user's RLS policies.
+  const { data: profiles, error: profilesError } = await supabase
+    .from('profiles')
+    .select('id,display_name,avatar_emoji,english_level,last_seen')
+    .in('id', Array.from(new Set(data.map((row) => row.contact_id))));
+  if (profilesError) throw new Error(readableSupabaseError(profilesError));
+  const profilesById = new Map((profiles || []).map((profile) => [profile.id, profile]));
+
+  return data.flatMap((row) => {
+    const contact = profilesById.get(row.contact_id);
     if (!contact) return [];
     return [{
       id: contact.id,
@@ -113,7 +111,7 @@ export async function listMessages(conversationId: string): Promise<DirectMessag
     .eq('conversation_id', conversationId)
     .order('created_at', { ascending: true })
     .limit(200);
-  if (error) throw new Error(readableError(error));
+  if (error) throw new Error(readableSupabaseError(error));
   return (data || []).map(mapMessage);
 }
 
@@ -126,7 +124,7 @@ export async function sendTextMessage(conversationId: string, body: string): Pro
     .insert({ conversation_id: conversationId, sender_id: user.id, message_type: 'text', body: clean })
     .select('*')
     .single();
-  if (error || !data) throw new Error(readableError(error));
+  if (error || !data) throw new Error(readableSupabaseError(error));
   return mapMessage(data);
 }
 
@@ -147,7 +145,7 @@ export async function sendVoiceMessage(
   const { error: uploadError } = await supabase.storage
     .from('chat-voice')
     .upload(mediaPath, audio, { contentType: extension === 'webm' ? 'audio/webm' : 'audio/mp4', upsert: false });
-  if (uploadError) throw new Error(readableError(uploadError));
+  if (uploadError) throw new Error(readableSupabaseError(uploadError));
 
   const { data, error } = await supabase
     .from('messages')
@@ -162,7 +160,7 @@ export async function sendVoiceMessage(
     .single();
   if (error || !data) {
     await supabase.storage.from('chat-voice').remove([mediaPath]);
-    throw new Error(readableError(error));
+    throw new Error(readableSupabaseError(error));
   }
   return mapMessage(data);
 }
@@ -170,7 +168,7 @@ export async function sendVoiceMessage(
 export async function getVoiceMessageUrl(mediaPath: string): Promise<string> {
   await ensureChatIdentity();
   const { data, error } = await supabase.storage.from('chat-voice').createSignedUrl(mediaPath, 60 * 60);
-  if (error || !data?.signedUrl) throw new Error(readableError(error));
+  if (error || !data?.signedUrl) throw new Error(readableSupabaseError(error));
   return data.signedUrl;
 }
 

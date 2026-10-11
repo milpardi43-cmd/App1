@@ -10,6 +10,7 @@ import { toPersianDigits } from '@/lib/format';
 import { getLesson, type LangWord } from '@/lib/langContent';
 import { recordQuizAnswer } from '@/lib/langProgress';
 import { AgentTopBar, ProgressBar } from '@/components/LangShared';
+import { EnglishPalette as Palette } from '@/components/EnglishSupplementTask';
 
 const QUESTION_COUNT = 8;
 
@@ -91,7 +92,7 @@ export default function QuizScreen() {
   if (finished) {
     return (
       <View style={styles.root}>
-        <AgentTopBar title={`آزمون درس ${toPersianDigits(lessonId)}`} subtitle={lesson.title} />
+        <AgentTopBar title={`آزمون درس ${toPersianDigits(lessonId)}`} subtitle={lesson.title} alignRight backFallback="/lang" />
         <View style={styles.finishWrap}>
           <LinearGradient colors={lesson.gradient} style={styles.trophyBadge}>
             <Trophy size={40} color={Colors.onColor} strokeWidth={2.2} />
@@ -142,7 +143,7 @@ export default function QuizScreen() {
 
   return (
     <View style={styles.root}>
-      <AgentTopBar title={`آزمون درس ${toPersianDigits(lessonId)}`} subtitle={`سؤال ${toPersianDigits(qi + 1)} از ${toPersianDigits(total)}`} />
+      <AgentTopBar title={`آزمون درس ${toPersianDigits(lessonId)}`} subtitle={`سؤال ${toPersianDigits(qi + 1)} از ${toPersianDigits(total)}`} alignRight backFallback="/lang" />
 
       <View style={styles.progressWrap}>
         <ProgressBar value={(qi + (selected !== null ? 1 : 0)) / total} color={lesson.color} />
@@ -164,8 +165,8 @@ export default function QuizScreen() {
             ];
             const optionTextStyle = [
               styles.optionText,
-              showResult && isCorrect && { color: Colors.success[500] },
-              showResult && isSelected && !isCorrect && { color: Colors.error[400] },
+              showResult && isCorrect && { color: Palette.success },
+              showResult && isSelected && !isCorrect && { color: Palette.danger },
             ];
             return (
               <Pressable key={idx} style={optionStyle} onPress={() => pick(idx)} disabled={selected !== null}>
@@ -188,126 +189,25 @@ export default function QuizScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Colors.neutral[950], direction: 'rtl' },
-
+  root: { flex: 1, backgroundColor: Palette.canvas },
   progressWrap: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.lg },
-
-  qWrap: { flex: 1, padding: Spacing.xl, gap: Spacing.lg },
-  qLabel: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.md,
-    color: Colors.neutral[300],
-    textAlign: 'center',
-  },
-  qWord: {
-    fontFamily: Typography.fontFamily,
-    fontSize: 44,
-    fontWeight: Typography.weights.bold,
-    color: Colors.neutral[0],
-    textAlign: 'center',
-  },
-
+  qWrap: { flex: 1, padding: Spacing.xl, gap: Spacing.lg, margin: Spacing.lg, backgroundColor: Palette.surface, borderRadius: Radius.xl, borderWidth: 1, borderColor: Palette.border, shadowColor: '#172033', shadowOpacity: 0.05, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
+  qLabel: { alignSelf: 'stretch', fontFamily: Typography.fontFamily, fontSize: Typography.sizes.md, color: Palette.muted, textAlign: 'right', writingDirection: 'rtl' },
+  qWord: { alignSelf: 'stretch', fontFamily: Typography.fontFamily, fontSize: 44, fontWeight: Typography.weights.bold, color: Palette.ink, textAlign: 'right', writingDirection: 'ltr' },
   optionsWrap: { gap: Spacing.sm, marginTop: Spacing.md },
-  option: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: Spacing.md,
-    backgroundColor: Colors.neutral[850],
-    borderRadius: Radius.lg,
-    borderWidth: 1.5,
-    borderColor: Colors.neutral[800],
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-  },
-  optionCorrect: { backgroundColor: Colors.success[500] + '12', borderColor: Colors.success[500] },
-  optionWrong: { backgroundColor: Colors.error[500] + '12', borderColor: Colors.error[500] },
-  optionBadge: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: Colors.neutral[900],
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.sm,
-    fontWeight: Typography.weights.bold,
-    color: Colors.neutral[300],
-    lineHeight: 30,
-  },
-  optionText: {
-    flex: 1,
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.lg,
-    fontWeight: Typography.weights.medium,
-    color: Colors.neutral[100],
-    textAlign: 'right',
-  },
-
-  nextBtn: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: Spacing.md,
-    borderRadius: Radius.lg,
-    marginTop: Spacing.md,
-  },
-  nextBtnText: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.md,
-    fontWeight: Typography.weights.bold,
-    color: Colors.onColor,
-  },
-
-  finishWrap: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.xl,
-    gap: Spacing.lg,
-  },
-  trophyBadge: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  option: { flexDirection: 'row-reverse', alignItems: 'center', gap: Spacing.md, backgroundColor: Palette.surface, borderRadius: Radius.lg, borderWidth: 1.5, borderColor: Palette.border, paddingVertical: Spacing.md, paddingHorizontal: Spacing.lg },
+  optionCorrect: { backgroundColor: Palette.successSoft, borderColor: Palette.success },
+  optionWrong: { backgroundColor: Palette.dangerSoft, borderColor: Palette.danger },
+  optionBadge: { width: 30, height: 30, borderRadius: 15, backgroundColor: Palette.surfaceMuted, textAlign: 'center', textAlignVertical: 'center', fontFamily: Typography.fontFamily, fontSize: Typography.sizes.sm, fontWeight: Typography.weights.bold, color: Palette.text, lineHeight: 30 },
+  optionText: { flex: 1, fontFamily: Typography.fontFamily, fontSize: Typography.sizes.lg, fontWeight: Typography.weights.medium, color: Palette.ink, textAlign: 'right', writingDirection: 'rtl' },
+  nextBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: Spacing.md, borderRadius: Radius.lg, marginTop: Spacing.md },
+  nextBtnText: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, color: Colors.onColor, writingDirection: 'rtl', textAlign: 'center' },
+  finishWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.xl, margin: Spacing.lg, gap: Spacing.lg, backgroundColor: Palette.surface, borderRadius: Radius.xl, borderWidth: 1, borderColor: Palette.border, shadowColor: '#172033', shadowOpacity: 0.06, shadowRadius: 14, shadowOffset: { width: 0, height: 5 }, elevation: 2 },
+  trophyBadge: { width: 96, height: 96, borderRadius: 48, justifyContent: 'center', alignItems: 'center' },
   starRow: { flexDirection: 'row-reverse', gap: 8 },
-  finishTitle: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.xxl,
-    fontWeight: Typography.weights.bold,
-    color: Colors.neutral[0],
-    textAlign: 'center',
-  },
-  finishScore: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.lg,
-    color: Colors.neutral[200],
-    textAlign: 'center',
-  },
-  finishXp: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.xl,
-    fontWeight: Typography.weights.bold,
-    color: Colors.success[500],
-    textAlign: 'center',
-  },
-  finishBtn: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.xl,
-    borderRadius: Radius.lg,
-    alignSelf: 'stretch',
-  },
-  finishBtnText: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.md,
-    fontWeight: Typography.weights.bold,
-    color: Colors.onColor,
-  },
+  finishTitle: { alignSelf: 'stretch', fontFamily: Typography.fontFamily, fontSize: Typography.sizes.xxl, fontWeight: Typography.weights.bold, color: Palette.ink, textAlign: 'right', writingDirection: 'rtl' },
+  finishScore: { alignSelf: 'stretch', fontFamily: Typography.fontFamily, fontSize: Typography.sizes.lg, color: Palette.text, textAlign: 'right', writingDirection: 'rtl' },
+  finishXp: { alignSelf: 'stretch', fontFamily: Typography.fontFamily, fontSize: Typography.sizes.xl, fontWeight: Typography.weights.bold, color: Palette.success, textAlign: 'right', writingDirection: 'rtl' },
+  finishBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: Spacing.md, paddingHorizontal: Spacing.xl, borderRadius: Radius.lg, alignSelf: 'stretch' },
+  finishBtnText: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, color: Colors.onColor, writingDirection: 'rtl', textAlign: 'center' },
 });
