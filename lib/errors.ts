@@ -31,15 +31,14 @@ export function readableSupabaseError(error: unknown): string {
   if (/invalid or expired/i.test(message)) return 'کد دعوت اشتباه است یا اعتبار آن تمام شده است.';
   if (/own invite/i.test(message)) return 'نمی‌توانید کد دعوت خودتان را وارد کنید.';
   if (/could not find the function|function .* does not exist/i.test(message)) {
-    // The invite RPCs live in supabase/SETUP-CONVERSATIONS.sql (shipped as a
-    // migration in supabase/migrations/). Until they are applied, no code can
-    // ever be generated — surface that instead of the raw Postgres text.
-    return 'توابع ساخت کد دعوت روی Supabase اجرا نشده‌اند. مدیر برنامه باید راه‌اندازی توابع را در SQL Editor بررسی کند.';
+    // The invite RPCs are installed by the checked-in migration/setup SQL.
+    // Keep a migration/setup failure distinct from missing profile relations.
+    return 'توابع ساخت کد دعوت روی Supabase اجرا نشده‌اند. برای پروژهٔ تازه supabase/SETUP-COPY-PASTE-ONCE.sql را در SQL Editor اجرا کنید یا ./scripts/setup-production.sh را به کار ببرید.';
   }
   if (/could not find.*relationship|relationship.*schema cache/i.test(message)) {
     return 'ارتباط جدول‌های مخاطبان با درخواست برنامه سازگار نیست. این مشکل باید در برنامه یا ساختار پایگاه‌داده بررسی شود.';
   }
-  if (/schema cache/i.test(message)) return 'ساختار موردنیاز برنامه در پایگاه‌داده پیدا نشد. مدیر برنامه باید ساختار جدول‌ها را بررسی کند.';
+  if (/schema cache/i.test(message)) return 'ساختار موردنیاز برنامه در پایگاه‌داده پیدا نشد. اگر پروژهٔ تازه است، supabase/SETUP-COPY-PASTE-ONCE.sql را اجرا کنید؛ برای پروژهٔ قبلی، فقط ساختار موجود را بررسی کنید.';
   if (/relation .* does not exist/i.test(message)) {
     return 'جدول‌های مکالمه هنوز روی Supabase ساخته نشده‌اند.';
   }

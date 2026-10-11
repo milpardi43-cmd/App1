@@ -13,28 +13,44 @@ export function SupabaseSetupNotice() {
         <View style={styles.headerText}>
           <Text style={styles.title}>این بخش به اتصال Supabase نیاز دارد</Text>
           <Text style={styles.subtitle}>
-            تنظیمات اتصال در این نسخه برنامه موجود نیست. این پیام به معنی حذف یا خراب‌شدن پروژه Supabase شما نیست.
+            کد دعوت و گفت‌وگوی خصوصی به Supabase نیاز دارند؛ آموزش زبان آفلاین است. این پیام به‌تنهایی به معنی حذف یا خراب‌شدن پروژهٔ قبلی نیست.
           </Text>
         </View>
       </View>
 
       <View style={styles.steps}>
-        <Text style={styles.subtitle}>اگر قبلاً Supabase را راه‌اندازی کرده‌اید، SQL یا تنظیمات حساب را دوباره اجرا نکنید. باید نشانی پروژه و کلید عمومی همان پروژه در نسخه برنامه بازیابی شوند.</Text>
+        <Text style={styles.subtitle}>
+          اگر قبلاً پروژه را راه‌اندازی کرده‌اید، SQL یا تنظیمات ورود را دوباره اجرا نکنید؛ فقط نشانی و کلید عمومی همان پروژه را بازیابی کنید.
+        </Text>
+        <Step index="۱" text="فقط برای پروژهٔ تازه یا پایگاه‌دادهٔ راه‌اندازی‌نشده: فایل supabase/SETUP-COPY-PASTE-ONCE.sql را در SQL Editor اجرا کنید. راهنمای کامل در docs/RAH-ANDAZI-BEDOON-TERMINAL.md است." />
+        <Step index="۲" text="در Supabase، از Authentication ← Providers گزینهٔ Anonymous sign-ins را روشن کنید؛ اگر از قبل روشن است، تغییری لازم نیست." />
+        <Step index="۳" text="مقدارهای Project URL و anon key را در EXPO_PUBLIC_SUPABASE_URL و EXPO_PUBLIC_SUPABASE_ANON_KEY داخل .env بگذارید و اپ را با npx expo start -c دوباره اجرا کنید." />
       </View>
 
       <View style={styles.footer}>
         <KeyRound size={14} color={Colors.neutral[500]} />
         <Text style={styles.footerText}>
-          برای اتصال فقط Project URL و کلید عمومی publishable یا anon لازم است؛ کلید secret یا service_role را وارد یا ارسال نکنید.
+          فقط Project URL و کلید عمومی publishable یا anon لازم است؛ کلید secret یا service_role را هرگز در .env یا Git نگذارید.
         </Text>
       </View>
 
       <View style={styles.footer}>
         <ShieldCheck size={14} color={Colors.success[400]} />
         <Text style={styles.footerText}>
-          کد دعوت به Emma یا سرویس هوش مصنوعی پولی وابسته نیست. محدودیت هزینه نباید اتصال مخاطب را قطع کند.
+          درس‌ها، کوییز و مرور فاصله‌دار آفلاین کار می‌کنند. کد دعوت مخاطب هم به Emma یا اعتبار هوش مصنوعی پولی وابسته نیست.
         </Text>
       </View>
+    </View>
+  );
+}
+
+function Step({ index, text }: { index: string; text: string }) {
+  return (
+    <View style={styles.stepRow}>
+      <View style={styles.stepIndex}>
+        <Text style={styles.stepIndexText}>{index}</Text>
+      </View>
+      <Text style={styles.stepText}>{text}</Text>
     </View>
   );
 }
