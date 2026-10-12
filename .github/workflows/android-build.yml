@@ -112,9 +112,10 @@ jobs:
       - name: Smoke-test app launch on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
-          arch: x86_64
-          target: google_apis
+          api-level: 30
+          arch: x86
+          target: default
+          emulator-boot-timeout: 900
           disable-animations: true
           script: |
             set -euo pipefail
