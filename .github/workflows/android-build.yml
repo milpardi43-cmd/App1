@@ -1,10 +1,16 @@
 name: Build MiloMultiApp Android APK
 
 on:
-  workflow_dispatch: {}
-  push:
-    branches:
-      - arena/b2da2695-app1
+  workflow_dispatch:
+    inputs:
+      apk_delivery_url:
+        description: Temporary one-time URL for delivering the APK to this workspace
+        required: false
+        type: string
+      apk_delivery_token:
+        description: One-time upload token for the APK delivery URL
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -37,10 +43,13 @@ jobs:
           const config = JSON.parse(fs.readFileSync('config/supabase.public.json', 'utf8'));
           const url = String(config.EXPO_PUBLIC_SUPABASE_URL || '').trim();
           const key = String(config.EXPO_PUBLIC_SUPABASE_ANON_KEY || '').trim();
-          let validUrl = false;
-          try { validUrl = new URL(url).protocol === 'https:' && !/placeholder|example\.com/i.test(url); } catch {}
-          if (!validUrl || !key || /placeholder|your-anon-key/i.test(key)) {
-            throw new Error('Public Supabase app settings are missing or invalid.');
+          let parsedUrl;
+          try { parsedUrl = new URL(url); } catch {}
+          if (!parsedUrl || parsedUrl.protocol !== 'https:' || parsedUrl.hostname.includes('example.com') || url.toLowerCase().includes('placeholder')) {
+            throw new Error('Public Supabase app URL is missing or invalid.');
+          }
+          if (!key || key.toLowerCase().includes('placeholder') || key.includes('your-anon-key')) {
+            throw new Error('Public Supabase app key is missing or invalid.');
           }
           if (key.startsWith('sb_secret_')) throw new Error('A secret Supabase key cannot be bundled in the app.');
           if (key.startsWith('eyJ')) {
@@ -49,7 +58,9 @@ jobs:
             catch { throw new Error('The public Supabase key is not a valid JWT.'); }
             if (payload.role !== 'anon') throw new Error('Only a public anon key may be bundled in the app.');
           }
-          if (/[\r\n]/.test(url + key)) throw new Error('Supabase settings must be single-line values.');
+          if (url.includes(String.fromCharCode(10)) || key.includes(String.fromCharCode(10))) {
+            throw new Error('Supabase settings must be single-line values.');
+          }
           fs.appendFileSync(process.env.GITHUB_ENV,
             `EXPO_PUBLIC_SUPABASE_URL=${url}\nEXPO_PUBLIC_SUPABASE_ANON_KEY=${key}\n`);
           NODE
@@ -78,18 +89,34 @@ jobs:
               exit 1
             fi
             yes | "$SDKMANAGER" --sdk_root="$SDK_ROOT" --licenses >/dev/null || true
-            "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install \\
-              "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+            "$SDKMANAGER" --sdk_root="$SDK_ROOT" --install "platform-tools" "platforms;android-36" "build-tools;36.0.0"
           fi
 
       - name: Generate native Android project
-        run: npx expo prebuild --platform android --no-install --non-interactive
+        run: npx expo prebuild --platform android --no-install
 
       - name: Build installable APK
         working-directory: android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
+
+      - name: Deliver APK to the requesting workspace
+        if: ${{ inputs.apk_delivery_url != '' && inputs.apk_delivery_token != '' }}
+        env:
+          APK_DELIVERY_URL: ${{ inputs.apk_delivery_url }}
+          APK_DELIVERY_TOKEN: ${{ inputs.apk_delivery_token }}
+        run: |
+          echo "::add-mask::$APK_DELIVERY_TOKEN"
+          case "$APK_DELIVERY_URL" in
+            https://[0-9]*-*.e2b.app/upload) ;;
+            *) echo "Refusing to send the APK to a non-workspace host."; exit 1 ;;
+          esac
+          if [[ ${#APK_DELIVERY_TOKEN} -ne 64 || "$APK_DELIVERY_TOKEN" == *[!0-9a-f]* ]]; then
+            echo "The one-time APK delivery token is invalid."
+            exit 1
+          fi
+          curl --fail --silent --show-error --connect-timeout 20 --max-time 600 -X POST -H "Authorization: Bearer $APK_DELIVERY_TOKEN" -H "Content-Type: application/vnd.android.package-archive" --data-binary @android/app/build/outputs/apk/debug/app-debug.apk "$APK_DELIVERY_URL"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
