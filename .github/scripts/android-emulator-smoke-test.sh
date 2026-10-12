@@ -15,6 +15,7 @@ exec > >(tee -a "$log_file") 2>&1
 
 on_exit() {
   local status=$?
+  local activity_summary log_summary ui_summary annotation
   trap - EXIT
   if (( status != 0 )); then
     set +e
@@ -24,15 +25,36 @@ on_exit() {
     printf '\n--- Emulator boot status ---\n'
     adb shell getprop sys.boot_completed
     printf '\n--- Resumed activity ---\n'
-    adb shell dumpsys activity activities 2>&1 | grep -E 'mResumedActivity|topResumedActivity|ResumedActivity' | tail -n 8 || true
+    activity_summary="$(adb shell dumpsys activity activities 2>&1 | grep -E 'mResumedActivity|topResumedActivity|ResumedActivity' | tail -n 8 | tr '\n' ' ' || true)"
+    printf '%s\n' "${activity_summary:-'(no resumed activity reported)'}"
     printf '\n--- Relevant recent logcat ---\n'
-    adb logcat -d -t 3000 2>&1 | grep -E 'FATAL EXCEPTION|Unable to load script|AppStartupError|ReactNativeJS|AndroidRuntime|ReactNative|SoLoader|ActivityTaskManager' | tail -n 80 || true
+    log_summary="$(adb logcat -d -t 3000 2>&1 | grep -E 'FATAL EXCEPTION|Unable to load script|AppStartupError|ReactNativeJS|AndroidRuntime|ReactNative|SoLoader|ActivityTaskManager' | tail -n 80 || true)"
+    printf '%s\n' "${log_summary:-'(no matching Android or React Native errors)'}"
+    ui_summary='(UI hierarchy unavailable)'
     if [[ -f "$ui_file" ]]; then
       printf '\n--- UI hierarchy (first 4000 bytes) ---\n'
       head -c 4000 "$ui_file"
       printf '\n'
+      ui_summary="$(python3 - "$ui_file" <<'PY' 2>/dev/null || true
+import sys
+import xml.etree.ElementTree as ET
+
+root = ET.parse(sys.argv[1]).getroot()
+values = []
+for node in root.iter():
+    for name in ('text', 'content-desc'):
+        value = node.attrib.get(name, '').strip()
+        if value and value not in values:
+            values.append(value)
+print(' | '.join(values)[:1800] or '(no accessible text nodes)')
+PY
+)"
     fi
-    echo "::error title=Android emulator smoke test failed::${failed_step} (exit ${status}); inspect this step and the android-emulator-smoke diagnostics artifact."
+    annotation="${failed_step} (exit ${status}); UI=${ui_summary}; ACTIVITY=${activity_summary:-none}; LOGCAT=$(printf '%s' "$log_summary" | tail -n 12 | tr '\n' ' ' | cut -c1-1800)"
+    annotation="${annotation//'%'/'%25'}"
+    annotation="${annotation//$'\r'/'%0D'}"
+    annotation="${annotation//$'\n'/'%0A'}"
+    echo "::error title=Android emulator smoke test failed::${annotation}"
   fi
   exit "$status"
 }
