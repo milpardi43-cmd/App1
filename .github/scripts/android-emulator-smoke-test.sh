@@ -123,10 +123,12 @@ if ! timeout 30s adb exec-out screencap -p > "$screenshot_file"; then
   echo 'Warning: screenshot capture failed; continuing with the UI hierarchy check.'
 fi
 
-failed_step="verifying the language-selection screen rendered"
-if ! grep -Fq 'کدام دنیا را باز کنیم' "$ui_file"; then
-  echo 'The expected language-selection text was not found in the UI hierarchy.'
+failed_step="verifying the language home screen rendered"
+# UIAutomator only reports visible nodes; the section heading is below the fold
+# on this small emulator, so assert the visible brand and hero title instead.
+if ! grep -Fq 'Language Journey' "$ui_file" || ! grep -Fq 'کلمات را کشف کن' "$ui_file"; then
+  echo 'The visible language-home brand and hero title were not found in the UI hierarchy.'
   exit 1
 fi
 
-echo 'Android emulator opened MiloMultiApp and rendered the language-selection screen.'
+echo 'Android emulator opened MiloMultiApp and rendered its language-home screen.'
