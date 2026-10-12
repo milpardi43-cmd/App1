@@ -60,6 +60,11 @@ PY
 }
 trap on_exit EXIT
 
+capture_ui() {
+  timeout 60s adb shell uiautomator dump "$remote_ui_file"
+  adb pull "$remote_ui_file" "$ui_file"
+}
+
 printf 'Testing standalone APK: %s\n' "$apk_path"
 printf 'Diagnostics will be saved under: %s\n' "$diag_dir"
 
@@ -75,11 +80,43 @@ adb logcat -c
 failed_step="launching the main activity"
 timeout 90s adb shell am start -W -n com.devicecontrol.companion/.MainActivity
 
-failed_step="dumping the Android UI hierarchy"
-timeout 60s adb shell uiautomator dump "$remote_ui_file"
+failed_step="allowing the first screen to finish rendering"
+sleep 30
 
-failed_step="retrieving the Android UI hierarchy"
-adb pull "$remote_ui_file" "$ui_file"
+failed_step="dumping the Android UI hierarchy"
+capture_ui
+
+for attempt in 1 2; do
+  if ! grep -Fq "System UI isn't responding" "$ui_file"; then
+    break
+  fi
+
+  failed_step="waiting for Android System UI (recovery attempt $attempt)"
+  wait_coords="$(python3 - "$ui_file" <<'PY'
+import re
+import sys
+import xml.etree.ElementTree as ET
+
+for node in ET.parse(sys.argv[1]).getroot().iter():
+    if node.attrib.get('text', '').strip().lower() == 'wait':
+        match = re.search(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]', node.attrib.get('bounds', ''))
+        if match:
+            x1, y1, x2, y2 = map(int, match.groups())
+            print((x1 + x2) // 2, (y1 + y2) // 2)
+            break
+PY
+)"
+  if [[ -z "$wait_coords" ]]; then
+    echo 'System UI is not responding, but its Wait button could not be located.'
+    break
+  fi
+  read -r wait_x wait_y <<< "$wait_coords"
+  echo "System UI reported an ANR; selecting Wait at $wait_x,$wait_y and allowing the app another 30 seconds."
+  adb shell input tap "$wait_x" "$wait_y"
+  sleep 30
+  failed_step="rechecking the screen after waiting for Android System UI"
+  capture_ui
+done
 
 failed_step="capturing the launched screen"
 if ! timeout 30s adb exec-out screencap -p > "$screenshot_file"; then

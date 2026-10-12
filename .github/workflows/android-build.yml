@@ -115,6 +115,9 @@ jobs:
           api-level: 30
           arch: x86_64
           target: default
+          cores: 4
+          ram-size: 3072M
+          heap-size: 512M
           emulator-boot-timeout: 900
           disable-animations: true
           script: bash .github/scripts/android-emulator-smoke-test.sh
