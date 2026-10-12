@@ -13,6 +13,7 @@
     },
     "android": {
       "package": "com.devicecontrol.companion",
+      "versionCode": 2,
       "permissions": [
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION",
