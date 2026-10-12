@@ -17,6 +17,8 @@ import type { LearningUnit } from './learningDesign';
 
 /** Published units only. Planned levels never resolve as playable content. */
 export const GERMAN_UNITS: readonly LearningUnit[] = [FIRST_MEETING, FAMILY_UNIT, TIME_UNIT, SHOPPING_UNIT, HOME_UNIT, WORK_UNIT, TRANSPORT_UNIT, NEEDS_UNIT, SKILLS_UNIT, CONTACT_UNIT, CALENDAR_UNIT, INTERESTS_UNIT, GRAMMAR_UNIT, REAL_LIFE_UNIT, A2_PAST_UNIT, ...COMPLETION_A1_UNITS, ...FOUNDATION_UNITS];
+/** Every objective-only German assessment whose result uses the same local UnitProgress store. */
+export const ALL_GERMAN_PROGRESS_UNITS: readonly LearningUnit[] = [...GERMAN_UNITS, A1_RECAP, ...A1_CHECKPOINTS, ...LEVEL_EXAMS];
 export const GERMAN_A1_UNITS = GERMAN_UNITS.filter(u=>u.level==='A1');
 export const GERMAN_A2_UNITS = GERMAN_UNITS.filter(u=>u.level==='A2');
 export const GERMAN_GUIDED_LESSON_COUNT = GERMAN_UNITS.reduce((n,u)=>n+u.lessons.length,0);

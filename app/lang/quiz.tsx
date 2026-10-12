@@ -117,6 +117,8 @@ export default function QuizScreen() {
           <Text style={styles.finishXp}>+{toPersianDigits(xp)} امتیاز</Text>
 
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="شروع دوبارهٔ آزمون درس"
             style={[styles.finishBtn, { backgroundColor: lesson.color }]}
             onPress={() => {
               setQuestions(buildQuestions(lessonId));
@@ -130,7 +132,7 @@ export default function QuizScreen() {
             <Text style={styles.finishBtnText}>تلاش دوباره</Text>
           </Pressable>
 
-          <Pressable style={[styles.finishBtn, { backgroundColor: Colors.neutral[800] }]} onPress={() => router.back()}>
+          <Pressable accessibilityRole="button" accessibilityLabel="بازگشت به فهرست درس‌ها" style={[styles.finishBtn, { backgroundColor: Colors.neutral[800] }]} onPress={() => router.back()}>
             <ArrowRight size={18} color={Colors.neutral[200]} strokeWidth={2.3} />
             <Text style={[styles.finishBtnText, { color: Colors.neutral[100] }]}>بازگشت</Text>
           </Pressable>
@@ -169,7 +171,7 @@ export default function QuizScreen() {
               showResult && isSelected && !isCorrect && { color: Palette.danger },
             ];
             return (
-              <Pressable key={idx} style={optionStyle} onPress={() => pick(idx)} disabled={selected !== null}>
+              <Pressable key={idx} accessibilityRole="button" accessibilityLabel={`گزینهٔ ${toPersianDigits(idx + 1)}: ${opt.fa}`} accessibilityState={{ selected: isSelected, disabled: selected !== null }} style={optionStyle} onPress={() => pick(idx)} disabled={selected !== null}>
                 <Text style={styles.optionBadge}>{toPersianDigits(idx + 1)}</Text>
                 <Text style={optionTextStyle}>{opt.fa}</Text>
               </Pressable>
@@ -178,7 +180,7 @@ export default function QuizScreen() {
         </View>
 
         {selected !== null && (
-          <Pressable style={[styles.nextBtn, { backgroundColor: lesson.color }]} onPress={next}>
+          <Pressable accessibilityRole="button" accessibilityLabel={qi + 1 >= total ? 'نمایش نتیجهٔ آزمون' : 'رفتن به سؤال بعدی'} style={[styles.nextBtn, { backgroundColor: lesson.color }]} onPress={next}>
             <Text style={styles.nextBtnText}>{qi + 1 >= total ? 'نمایش نتیجه' : 'سؤال بعدی'}</Text>
             <ArrowRight size={18} color={Colors.onColor} strokeWidth={2.4} />
           </Pressable>

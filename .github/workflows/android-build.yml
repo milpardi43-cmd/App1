@@ -1,20 +1,21 @@
-name: Build Android APK
+name: Build MiloMultiApp Android APK
 
 on:
   workflow_dispatch: {}
   push:
     branches:
-      - arena/01a0fc18-app1
+      - arena/b2da2695-app1
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  build:
+  build-android-apk:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     env:
-      EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
-      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key' }}
+      CI: "1"
+      EXPO_NO_TELEMETRY: "1"
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -22,11 +23,36 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
+
+      - name: Load and validate public Supabase app settings
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const config = JSON.parse(fs.readFileSync('config/supabase.public.json', 'utf8'));
+          const url = String(config.EXPO_PUBLIC_SUPABASE_URL || '').trim();
+          const key = String(config.EXPO_PUBLIC_SUPABASE_ANON_KEY || '').trim();
+          let validUrl = false;
+          try { validUrl = new URL(url).protocol === 'https:' && !/placeholder|example\.com/i.test(url); } catch {}
+          if (!validUrl || !key || /placeholder|your-anon-key/i.test(key)) {
+            throw new Error('Public Supabase app settings are missing or invalid.');
+          }
+          if (key.startsWith('sb_secret_')) throw new Error('A secret Supabase key cannot be bundled in the app.');
+          if (key.startsWith('eyJ')) {
+            let payload;
+            try { payload = JSON.parse(Buffer.from(key.split('.')[1], 'base64url').toString()); }
+            catch { throw new Error('The public Supabase key is not a valid JWT.'); }
+            if (payload.role !== 'anon') throw new Error('Only a public anon key may be bundled in the app.');
+          }
+          if (/[\r\n]/.test(url + key)) throw new Error('Supabase settings must be single-line values.');
+          fs.appendFileSync(process.env.GITHUB_ENV,
+            `EXPO_PUBLIC_SUPABASE_URL=${url}\nEXPO_PUBLIC_SUPABASE_ANON_KEY=${key}\n`);
+          NODE
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -34,26 +60,22 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Generate native Android project
-        run: npx expo prebuild -p android --no-install
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Build debug APK
+      - name: Generate native Android project
+        run: npx expo prebuild --platform android --no-install --non-interactive
+
+      - name: Build installable APK
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon
+          ./gradlew assembleDebug --no-daemon
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
-      - name: Publish APK to a GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: android-build-${{ github.run_number }}
-          name: Android build #${{ github.run_number }}
-          prerelease: true
-          files: android/app/build/outputs/apk/release/app-release.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: MiloMultiApp-android-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7

@@ -121,7 +121,7 @@ export default function EmmaChat() {
           <View style={styles.nameRow}><Text style={styles.name}>Emma</Text><Bot size={14} color={Colors.accent[400]} /></View>
           <Text style={styles.status}>هوش مصنوعی آنلاین · فعلاً غیرفعال</Text>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="گفتار آنلاین Emma"
+        <Pressable accessibilityRole="button" accessibilityLabel={PAID_AI_ENABLED ? 'شروع یا پایان گفتار آنلاین Emma' : 'گفتار آنلاین Emma فعلاً غیرفعال است'} accessibilityHint={!PAID_AI_ENABLED ? PAID_AI_DISABLED_MESSAGE : 'با اجازهٔ میکروفن صدا پردازش می‌شود.'} accessibilityState={{ disabled: !PAID_AI_ENABLED || thinking || transcribing }}
           disabled={!PAID_AI_ENABLED || thinking || transcribing}
           style={[styles.voiceCall, recorderState.isRecording && styles.voiceCallActive]}
           onPress={() => recorderState.isRecording ? void stopVoiceTurn() : void startVoiceTurn()}
@@ -141,7 +141,7 @@ export default function EmmaChat() {
             <Text style={styles.messageText}>{message.text}</Text>
             {message.translation ? <Text style={styles.translation}>{message.translation}</Text> : null}
             {message.from === 'emma' ? (
-              <Pressable style={styles.listen} onPress={() => Speech.speak(message.text, { language: 'en-US', rate: .78 })}>
+              <Pressable accessibilityRole="button" accessibilityLabel={`پخش پیام انگلیسی Emma: ${message.text}`} style={styles.listen} onPress={() => Speech.speak(message.text, { language: 'en-US', rate: .78 })}>
                 <Volume2 size={14} color={Colors.primary[300]} /><Text style={styles.listenText}>پخش</Text>
               </Pressable>
             ) : null}
@@ -156,11 +156,11 @@ export default function EmmaChat() {
             <Text style={styles.correctionExplanation}>{correction.explanationFa}</Text>
           </View>
         ) : null}
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
       </ScrollView>
 
       <View style={styles.coachArea}>
-        <Pressable style={styles.coachToggle} onPress={() => setShowTools((value) => !value)}>
+        <Pressable accessibilityRole="button" accessibilityLabel="باز و بسته‌کردن پیشنهادهای خصوصی Emma" accessibilityState={{ expanded: showTools }} style={styles.coachToggle} onPress={() => setShowTools((value) => !value)}>
           <Sparkles size={15} color={Colors.warning[400]} />
           <Text style={styles.coachToggleText}>کمک خصوصی Emma</Text>
           <Text style={styles.coachToggleHint}>{showTools ? 'بستن' : 'پیشنهاد پاسخ'}</Text>
@@ -169,15 +169,16 @@ export default function EmmaChat() {
           <View style={styles.tools}>
             <View style={styles.toolRow}><Lightbulb size={15} color={Colors.warning[400]} /><Text style={styles.toolText}>یکی از پاسخ‌ها را انتخاب کنید یا پاسخ خودتان را بنویسید.</Text></View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestions}>
-              {suggestions.map((suggestion) => <Pressable key={suggestion} style={styles.suggestion} onPress={() => setInput(suggestion)}><Text style={styles.suggestionText}>{suggestion}</Text></Pressable>)}
+              {suggestions.map((suggestion) => <Pressable key={suggestion} accessibilityRole="button" accessibilityLabel={`قرار دادن پیشنهاد در پیام: ${suggestion}`} style={styles.suggestion} onPress={() => setInput(suggestion)}><Text style={styles.suggestionText}>{suggestion}</Text></Pressable>)}
             </ScrollView>
           </View>
         ) : null}
       </View>
 
       <View style={styles.composer}>
-        <Pressable style={styles.helper}><Languages size={19} color={Colors.neutral[400]} /></Pressable>
+        <View style={styles.helper} accessibilityElementsHidden importantForAccessibility="no-hide-descendants"><Languages size={19} color={Colors.neutral[400]} /></View>
         <TextInput
+          accessibilityLabel="پیام انگلیسی برای Emma"
           style={styles.input}
           value={input}
           onChangeText={setInput}
@@ -186,7 +187,7 @@ export default function EmmaChat() {
           multiline
           textAlign="right"
         />
-        <Pressable accessibilityRole="button" accessibilityLabel="ارسال به Emma" style={[styles.send, (!input.trim() || thinking || transcribing || recorderState.isRecording) && styles.sendDisabled]} disabled={!PAID_AI_ENABLED || !input.trim() || thinking || transcribing || recorderState.isRecording} onPress={() => void send()}>
+        <Pressable accessibilityRole="button" accessibilityLabel="ارسال پیام به Emma" accessibilityState={{ disabled: !PAID_AI_ENABLED || !input.trim() || thinking || transcribing || recorderState.isRecording }} style={[styles.send, (!input.trim() || thinking || transcribing || recorderState.isRecording) && styles.sendDisabled]} disabled={!PAID_AI_ENABLED || !input.trim() || thinking || transcribing || recorderState.isRecording} onPress={() => void send()}>
           {thinking || transcribing ? <ActivityIndicator size="small" color={Colors.onColor} /> : <Send size={18} color={Colors.onColor} />}
         </Pressable>
       </View>

@@ -47,6 +47,8 @@ export interface ProgressStoreOptions {
   recordEstimatedTime?: boolean;
   markVocabularyOnCompletion?: boolean;
   explicitCloudSync?: boolean;
+  /** Best-effort personal cloud sync after a successful local write; local storage remains authoritative. */
+  afterLocalSave?: () => void;
 }
 export function createCourseProgressStore(options: ProgressStoreOptions) {
   if (!options.lessons.length) throw new Error('Progress store requires a curriculum');
@@ -195,6 +197,7 @@ async function saveProgress(progress: CourseProgress): Promise<CourseProgress> {
   if(old!==null){normalizeProgress(JSON.parse(old));if(Platform.OS==='web')window.localStorage.setItem(KEY+'_backup_v1',old);else await AsyncStorage.setItem(KEY+'_backup_v1',old);}
   await writeRaw(JSON.stringify(progress));
   if (!options.explicitCloudSync) await uploadProgress(progress);
+  try { options.afterLocalSave?.(); } catch { /* Local progress is already safely stored. */ }
   return progress;
 }
 
@@ -387,10 +390,24 @@ async function restoreProgressText(text: string): Promise<CourseProgress> {
   const next = current ? mergeCourseProgress(current, restored) : restored;
   next.updatedAt = new Date().toISOString();
   await writeRaw(JSON.stringify(next));
+  try { options.afterLocalSave?.(); } catch { /* The local restore is already safely stored. */ }
   return next;
 }
 
-return { getCourseProgress, syncCourseProgress,
+async function mergeRemoteProgress(value: unknown): Promise<CourseProgress> {
+  if (!validBackup({ schema: 1, courseKey: KEY, progress: value })) {
+    throw new Error('پیشرفت ابری آلمانی معتبر نیست؛ دادهٔ محلی تغییری نکرد.');
+  }
+  return serial(async () => {
+    const local = await getCourseProgress();
+    const remote = normalizeProgress(value as Partial<CourseProgress>);
+    const merged = mergeCourseProgress(local, remote);
+    if (JSON.stringify(merged) !== JSON.stringify(local)) await saveProgress(merged);
+    return merged;
+  });
+}
+
+return { getCourseProgress, syncCourseProgress, mergeRemoteProgress,
  completeSentenceLesson:(id:string,next?:string)=>serial(()=>completeSentenceLesson(id,next)),
  getDueReviewCards, rateReviewCard:(id:string,rating:ReviewRating,now?:Date)=>serial(()=>rateReviewCard(id,rating,now)),
  addSentenceToReview:(id:string,lesson?:string)=>serial(()=>addSentenceToReview(id,lesson)),

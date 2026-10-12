@@ -45,6 +45,8 @@ export interface SentenceLesson {
   id: string;
   levelId: CourseLevelId;
   order: number;
+  /** Honest distinction between the contextual Advanced lessons and legacy vocabulary sets. */
+  contentKind?: 'scenario' | 'vocabulary-practice';
   title: string;
   subtitle: string;
   situation: string;
@@ -102,10 +104,10 @@ export const COURSE_LEVELS: CourseLevel[] = [
   {
     id: 4,
     title: 'Advanced English',
-    cefr: 'B2–C1',
-    description: 'انگلیسی دانشگاهی، کاری و پیشرفته',
+    cefr: 'سطح ۴ · داخلی',
+    description: 'سناریوهای حرفه‌ای، اجتماعی و علمی؛ همراه با مرور واژگان پیشرفته',
     color: '#8b5cf6',
-    modules: ['انگلیسی دانشگاهی', 'کسب‌وکار', 'IELTS و گفتار حرفه‌ای'],
+    modules: ['کار و تصمیم‌گیری', 'رسانه و جامعه', 'علم و محیط زیست', 'سفر و ایمنی', 'رشد فردی و ارتباط', 'مرور واژگان در بافت'],
   },
 ];
 
@@ -336,9 +338,17 @@ const ORIGINAL_SENTENCE_LESSONS: SentenceLesson[] = [
   ...ADVANCED_SENTENCE_LESSONS_6,
   ...ADVANCED_SENTENCE_LESSONS_7,
   ...FINAL_SENTENCE_LESSONS,
-].map(lesson => lesson.levelId === 4
-  ? { ...lesson, order: lesson.order + COMMUNICATION_ORDER_INSERTION_COUNT }
-  : lesson)
+].map(lesson => {
+  if (lesson.levelId !== 4) return lesson;
+  const contentKind: NonNullable<SentenceLesson['contentKind']> = lesson.id.startsWith('advanced-canonical-practice-')
+    ? 'vocabulary-practice'
+    : 'scenario';
+  return {
+    ...lesson,
+    contentKind,
+    order: lesson.order + COMMUNICATION_ORDER_INSERTION_COUNT,
+  };
+})
   .concat(COMMUNICATION_NEW_LESSONS)
   .sort((a, b) => a.order - b.order);
 

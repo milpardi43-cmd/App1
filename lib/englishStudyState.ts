@@ -75,6 +75,11 @@ export async function loadStudy(): Promise<StudyState> {
 }
 
 let queue: Promise<unknown> = Promise.resolve();
+function scheduleAccountSync() {
+  void import('./personalLearningSync')
+    .then(({ schedulePersonalLearningSync }) => schedulePersonalLearningSync())
+    .catch(() => undefined);
+}
 function update(change: (state: StudyState) => void): Promise<StudyState> {
   const job = queue.then(async () => {
     const state = await loadStudy();
@@ -84,6 +89,7 @@ function update(change: (state: StudyState) => void): Promise<StudyState> {
       if (typeof window === 'undefined') throw Error('ذخیره‌سازی در دسترس نیست.');
       window.localStorage.setItem(STUDY_KEY, raw);
     } else await AsyncStorage.setItem(STUDY_KEY, raw);
+    scheduleAccountSync();
     return state;
   });
   queue = job.catch(() => {});

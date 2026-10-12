@@ -631,6 +631,13 @@ export { default as asyncStorage } from '${STUBS}/async-storage.js';
   await engine.saveUnitMission(attempt);await engine.saveUnitMission(attempt);
   check('retrying same save does not duplicate mission history',(await engine.getUnitProgress()).missions.length===1);
   check('unit progress persists using its own key',OS==='web'?Boolean(window.localStorage.getItem(engine.UNIT_PROGRESS_KEY)):Boolean(app.asyncStorage.__dump()[engine.UNIT_PROGRESS_KEY]));
+  const remoteActivity={id:'remote-newer',finishedAt:new Date(Date.now()+5000).toISOString(),results:unit.lessons[0].exercises.map(e=>({exerciseId:e.id,correct:true,assisted:false}))};
+  const remoteMission={id:'cloud-mission',finishedAt:new Date(Date.now()+5000).toISOString(),results:correctResults};
+  const mergedUnit=await engine.mergeRemoteUnitProgress(unit,{version:1,activities:{[unit.lessons[0].id]:remoteActivity},missions:[remoteMission]});
+  check('cloud unit merge keeps every local lesson, prefers a newer result and unions mission attempts',Object.keys(mergedUnit.activities).length===unit.lessons.length&&mergedUnit.activities[unit.lessons[0].id].id==='remote-newer'&&mergedUnit.missions.length===2);
+  const beforeInvalidUnitMerge=JSON.stringify(await engine.getUnitProgress());
+  let invalidUnitMergeRejected=false;try{await engine.mergeRemoteUnitProgress(unit,{version:1,activities:{unknown:{...remoteActivity}},missions:[]});}catch{invalidUnitMergeRejected=true;}
+  check('cloud unit merge rejects foreign lesson IDs without changing local progress',invalidUnitMergeRejected&&JSON.stringify(await engine.getUnitProgress())===beforeInvalidUnitMerge);
   const previousGerman=JSON.stringify(await dp.getCourseProgress());
   await app.unitReview.firstMeetingReview.completeSentenceLesson(unit.lessons[0].id);
   check('unit sentences join their own spaced review',(await app.unitReview.firstMeetingReview.getDueReviewCards()).length===unit.lessons[0].examples.length);
@@ -718,6 +725,8 @@ export { default as asyncStorage } from '${STUBS}/async-storage.js';
 
   section('Multi-unit A1 curriculum and independent stores');
   const published=app.units.GERMAN_UNITS;
+  const accountProgressIds=app.units.ALL_GERMAN_PROGRESS_UNITS.map(u=>u.id);
+  check('account-sync unit registry includes all published units, recap, both checkpoints and both level assessments',published.every(u=>accountProgressIds.includes(u.id))&&['de-a1-recap','de-a1-checkpoint-a','de-a1-checkpoint-b','de-zero-final','de-a1-final'].every(id=>accountProgressIds.includes(id)));
   const oldUnitBefore=JSON.stringify(await engine.getUnitProgress());
   const oldReviewBefore=JSON.stringify(await app.unitReview.firstMeetingReview.getCourseProgress());
   check('twenty published sections, with one hundred guided lessons',published.length===20&&published.flatMap(u=>u.lessons).length===100);
@@ -940,12 +949,28 @@ export { default as asyncStorage } from '${STUBS}/async-storage.js';
   check('malformed email postcode date and phone flagged',workshop.formFeedback({...wd.form,postcode:'12',email:'bad',birth:'today',phone:'abc'}).length===4);
   await workshop.saveWorkshop(wd);
   check('free text form oral checklist and Persian notes restore',JSON.stringify(await workshop.loadWorkshop())===JSON.stringify(wd));
+  const localWorkshopSync=await workshop.exportWorkshopChecklistSyncState();
+  check('workshop cloud snapshot contains only timestamped checkbox values, not personal form or free text',localWorkshopSync.checks['invite-0']?.checked===true&&!JSON.stringify(localWorkshopSync).match(/Alex|Winter|Gartenstraße|alex@example|Ein freier Text|دوباره تمرین/));
+  const cloudChecklistAt=new Date(Date.now()+1000).toISOString();
+  await workshop.mergeRemoteWorkshopChecklistSyncState({version:1,resetAt:null,checks:{'change-0':{checked:true,updatedAt:cloudChecklistAt}}});
+  let mergedWorkshop=await workshop.loadWorkshop();
+  check('remote checklist item merges without changing private workshop fields',mergedWorkshop.checks['change-0']===true&&mergedWorkshop.notes===wd.notes&&mergedWorkshop.form.email===wd.form.email&&mergedWorkshop.messages.invite===wd.messages.invite);
+  const cloudUncheckAt=new Date(Date.now()+2000).toISOString();
+  await workshop.mergeRemoteWorkshopChecklistSyncState({version:1,resetAt:null,checks:{'change-0':{checked:false,updatedAt:cloudUncheckAt}}});
+  check('timestamped false checklist value acts as a cross-device uncheck', (await workshop.loadWorkshop()).checks['change-0']===false);
+  const workshopBeforeInvalid=JSON.stringify(await workshop.loadWorkshop());
   for(const [label,patch] of Object.entries({version:{version:2},form:{form:{}},messages:{messages:{invite:'x'.repeat(2001),change:''}},checks:{checks:{'unknown':true}},notes:{notes:123},date:{updatedAt:'bad'}})){
     check('workshop rejects invalid '+label,!workshop.validWorkshop({...wd,...patch}));
-    let rejected=false;try{await workshop.saveWorkshop({...wd,...patch});}catch{rejected=true;}check('invalid '+label+' never overwrites draft',rejected&&JSON.stringify(await workshop.loadWorkshop())===JSON.stringify(wd));
+    let rejected=false;try{await workshop.saveWorkshop({...wd,...patch});}catch{rejected=true;}check('invalid '+label+' never overwrites draft',rejected&&JSON.stringify(await workshop.loadWorkshop())===workshopBeforeInvalid);
   }
   await workshop.clearWorkshop();
-  check('workshop erase leaves lesson history intact',(await workshop.loadWorkshop()).messages.invite===''&&JSON.stringify(await engine.getUnitProgress(unit))===untouched);
+  const clearedWorkshopChecks=await workshop.exportWorkshopChecklistSyncState();
+  check('explicit workshop clear stores a sync tombstone and leaves lesson history intact',!!clearedWorkshopChecks.resetAt&&Object.keys(clearedWorkshopChecks.checks).length===0&&JSON.stringify(await engine.getUnitProgress(unit))===untouched);
+  await workshop.mergeRemoteWorkshopChecklistSyncState({version:1,resetAt:null,checks:{'invite-0':{checked:true,updatedAt:cloudChecklistAt},'change-0':{checked:false,updatedAt:cloudUncheckAt}}});
+  check('older remote workshop checkboxes do not reappear after the clear tombstone',Object.keys((await workshop.exportWorkshopChecklistSyncState()).checks).length===0&&(await workshop.loadWorkshop()).checks['invite-0']===undefined);
+  await workshop.saveWorkshop({...workshop.emptyWorkshop(),checks:{'intro-0':true}});
+  const postResetWorkshop=await workshop.exportWorkshopChecklistSyncState();
+  check('a new workshop checkbox after clear supersedes the tombstone',postResetWorkshop.checks['intro-0']?.checked===true&&Date.parse(postResetWorkshop.checks['intro-0'].updatedAt)>Date.parse(postResetWorkshop.resetAt));
 
   // ---------------------------------------- F. config detection + guards -----
   section('F. Supabase configuration detection & fail-fast guards');

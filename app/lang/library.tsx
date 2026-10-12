@@ -17,7 +17,7 @@ import {
 import { COURSE_LEVELS, SENTENCE_LESSONS, type CourseLevelId, type SentenceLesson } from '@/lib/courseContent';
 import { getCourseProgress, type CourseProgress } from '@/lib/courseProgress';
 import { loadStudy, type StudyState } from '@/lib/englishStudyState';
-import { ENGLISH_ENGINE_BLUEPRINT, getEnglishLevelMetrics } from '@/lib/englishLearningEngine';
+import { ENGLISH_ENGINE_BLUEPRINT, getAdvancedContentComposition, getEnglishLevelMetrics } from '@/lib/englishLearningEngine';
 import { ENGLISH_PHONEME_LICENSE } from '@/lib/englishPhonemeLicense';
 import { EnglishPalette as Palette } from '@/components/EnglishSupplementTask';
 import { Typography } from '@/lib/theme';
@@ -71,13 +71,22 @@ export default function EnglishLessonList() {
   const completed = lessons.filter(item => completedIds.includes(item.id)).length;
   const metrics = selected ? getEnglishLevelMetrics(selected.id, completedIds) : null;
   const blueprint = selected ? ENGLISH_ENGINE_BLUEPRINT.find(item => item.levelId === selected.id) : null;
+  const advancedComposition = getAdvancedContentComposition();
   const lessonGroups = useMemo(() => {
+    const collections = selected?.id === 4
+      ? [
+          lessons.filter(item => item.contentKind === 'scenario'),
+          lessons.filter(item => item.contentKind === 'vocabulary-practice'),
+        ]
+      : [lessons];
     const groups: typeof lessons[] = [];
-    for (let index = 0; index < lessons.length; index += LESSONS_PER_GROUP) {
-      groups.push(lessons.slice(index, index + LESSONS_PER_GROUP));
+    for (const collection of collections) {
+      for (let index = 0; index < collection.length; index += LESSONS_PER_GROUP) {
+        groups.push(collection.slice(index, index + LESSONS_PER_GROUP));
+      }
     }
     return groups;
-  }, [lessons]);
+  }, [lessons, selected?.id]);
   const activeLesson = SENTENCE_LESSONS.find(item => item.id === progress?.currentLessonId) ?? SENTENCE_LESSONS[0];
   const activeLevelId = activeLesson.levelId;
   const counts = Object.fromEntries(COURSE_LEVELS.map(item => {
@@ -212,7 +221,13 @@ export default function EnglishLessonList() {
                     </View>
                   ))}
                 </View>
-                <Text style={styles.focusFootnote}>موضوعات نقشه، هدف مسیرند؛ شمار درس‌ها، جمله‌ها و واژه‌های یکتای این سطح از محتوای موجود محاسبه شده است.</Text>
+                {selected.id === 4 ? (
+                  <Text style={styles.focusFootnote}>
+                    در دادهٔ فعلی {toPersianDigits(advancedComposition.scenarioLessonCount)} درس سناریومحور و {toPersianDigits(advancedComposition.vocabularyPracticeLessonCount)} مجموعهٔ مرور واژگان وجود دارد. مجموعه‌های مرور شامل مثال‌های مستقل‌اند و گفت‌وگوی پیوسته یا سنجش رسمی محسوب نمی‌شوند؛ برچسب سطح داخلی است.
+                  </Text>
+                ) : (
+                  <Text style={styles.focusFootnote}>موضوعات نقشه، هدف مسیرند؛ شمار درس‌ها، جمله‌ها و واژه‌های یکتای این سطح از محتوای موجود محاسبه شده است.</Text>
+                )}
               </View>
 
               <View style={styles.lessonSectionHeading}>
@@ -229,13 +244,23 @@ export default function EnglishLessonList() {
                   const last = group[group.length - 1];
                   const groupCompleted = group.filter(item => completedIds.includes(item.id)).length;
                   const open = expandedGroup === index;
+                  const advancedGroup = selected?.id === 4;
+                  const groupKind = first.contentKind;
+                  const groupNumber = advancedGroup
+                    ? lessonGroups.slice(0, index + 1).filter(items => items[0]?.contentKind === groupKind).length
+                    : index + 1;
+                  const groupTitle = advancedGroup && groupKind === 'scenario'
+                    ? `سناریوهای پیشرفته · بستهٔ ${toPersianDigits(groupNumber)}`
+                    : advancedGroup && groupKind === 'vocabulary-practice'
+                      ? `مرور واژگان · بستهٔ ${toPersianDigits(groupNumber)}`
+                      : `بخش ${toPersianDigits(groupNumber)} · درس‌های ${toPersianDigits(first.order)} تا ${toPersianDigits(last.order)}`;
                   return (
                     <View key={`${first.id}-${last.id}`} style={styles.group}>
-                      <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} style={styles.groupHeader} onPress={() => setExpandedGroup(open ? -1 : index)}>
-                        <View style={[styles.groupNumber, open && styles.groupNumberActive]}><Text style={[styles.groupNumberText, open && styles.groupNumberTextActive]}>{toPersianDigits(index + 1)}</Text></View>
+                      <Pressable accessibilityRole="button" accessibilityLabel={groupTitle} accessibilityState={{ expanded: open }} style={styles.groupHeader} onPress={() => setExpandedGroup(open ? -1 : index)}>
+                        <View style={[styles.groupNumber, open && styles.groupNumberActive]}><Text style={[styles.groupNumberText, open && styles.groupNumberTextActive]}>{toPersianDigits(groupNumber)}</Text></View>
                         <View style={styles.groupHeaderCopy}>
-                          <Text style={styles.groupTitle}>بخش {toPersianDigits(index + 1)} · درس‌های {toPersianDigits(first.order)} تا {toPersianDigits(last.order)}</Text>
-                          <Text style={styles.groupMeta}>{toPersianDigits(group.length)} درس · {toPersianDigits(groupCompleted)} تکمیل‌شده</Text>
+                          <Text style={styles.groupTitle}>{groupTitle}</Text>
+                          <Text style={styles.groupMeta}>{toPersianDigits(group.length)} درس · {toPersianDigits(groupCompleted)} تکمیل‌شده · درس‌های {toPersianDigits(first.order)} تا {toPersianDigits(last.order)}</Text>
                         </View>
                         {open ? <ChevronUp size={18} color={Palette.primary} /> : <ChevronDown size={18} color={Palette.muted} />}
                       </Pressable>
@@ -250,7 +275,7 @@ export default function EnglishLessonList() {
                               <Pressable
                                 key={item.id}
                                 accessibilityRole="button"
-                                accessibilityLabel={`${item.order}. ${item.title}`}
+                                accessibilityLabel={`${item.order}. ${item.title}${item.contentKind === 'vocabulary-practice' ? '، مرور واژگان از مثال‌های مستقل' : ''}`}
                                 style={({ pressed }) => [styles.lessonCard, pressed && styles.pressed]}
                                 onPress={() => router.push({ pathname: '/course/lesson', params: { id: item.id } } as never)}
                               >
@@ -265,6 +290,9 @@ export default function EnglishLessonList() {
                                     </View>
                                   </View>
                                   <Text style={styles.lessonSubtitle}>{item.subtitle}</Text>
+                                  {item.contentKind === 'vocabulary-practice' ? (
+                                    <Text style={styles.contentKindNote}>مجموعهٔ مرجع واژگان · مثال‌های مستقل</Text>
+                                  ) : null}
                                   {previewSentence ? (
                                     <View style={styles.lessonSentencePreview}>
                                       <View style={styles.lessonSentenceHeader}><Volume2 size={12} color={Palette.primary} /><Text style={styles.lessonSentenceEyebrow}>جملهٔ آغازین</Text></View>
@@ -403,6 +431,7 @@ const styles = StyleSheet.create({
   lessonTitleLine: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   lessonTitle: { fontFamily: Typography.fontFamily, flexShrink: 1, color: Palette.ink, fontSize: 13, fontWeight: '800', textAlign: 'right', writingDirection: 'rtl' },
   lessonSubtitle: { fontFamily: Typography.fontFamily, color: Palette.muted, fontSize: 10, textAlign: 'right', writingDirection: 'rtl' },
+  contentKindNote: { alignSelf: 'flex-end', overflow: 'hidden', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, backgroundColor: Palette.warningSoft, color: Palette.warning, fontFamily: Typography.fontFamily, fontSize: 9, textAlign: 'right', writingDirection: 'rtl' },
   lessonStatus: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: Palette.surfaceMuted },
   lessonStatusDone: { backgroundColor: Palette.successSoft },
   lessonStatusResume: { backgroundColor: Palette.warningSoft },

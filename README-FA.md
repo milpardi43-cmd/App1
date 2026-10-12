@@ -33,6 +33,7 @@
 - تماس صوتی زنده WebRTC با TURN
 - اشتراک صفحه رضایت‌محور با اعلان رسمی Android
 - کنترل لمسی اختیاری از طریق Accessibility Service
+- حساب شخصی ایمیلی OTP و همگام‌سازی پیشرفت آموزشیِ انگلیسی/آلمانی و خودارزیابی تلفظ، با RLS مالک‌محور؛ دامنهٔ دقیق و داده‌های عمداً محلی در `docs/PERSONAL-CLOUD-SYNC-SETUP-FA.md`
 - پیشرفت ابری، زنجیره روزانه و محدودیت مصرف AI
 
 ## اجرای محلی
@@ -45,6 +46,8 @@ npm run validate:logic     # تست منطق درس‌ها، مرور فاصله
 npm run validate:russian   # محتوای آغازین روسی، جریان ۹مرحله‌ای و جداسازی
 npm run validate:russian-architecture  # نقشهٔ A1–B2، چرخهٔ جمله‌محور و شواهد محلی
 npm run validate:english-supplement  # ۲۴ واحد، پاسخ‌ها و نگهداشت سابقه
+npm run validate:backup            # ادغام ایمن بکاپ انگلیسی و حفظ پیش‌نویس محلی
+npm run validate:personal-sync     # OTP/RLS و ادغام پیشرفت ابری
 npm run dev -- --web
 ```
 

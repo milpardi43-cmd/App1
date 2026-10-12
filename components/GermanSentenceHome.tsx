@@ -12,6 +12,7 @@ import {
   ChevronUp,
   Clock3,
   Compass,
+  Cloud,
   Download,
   Flame,
   MessageCircle,
@@ -33,6 +34,7 @@ import {
   getGermanSentenceResumeLesson,
 } from '@/lib/languages/germanSentenceCourse';
 import { germanProgress } from '@/lib/languages/catalog';
+import { syncPersonalLearningData } from '@/lib/personalLearningSync';
 import type { CourseProgress } from '@/lib/createCourseProgressStore';
 import { germanHomeStyles as styles } from './germanHomeStyles';
 
@@ -48,7 +50,7 @@ export default function GermanSentenceHome() {
 
   useFocusEffect(useCallback(() => {
     let alive = true;
-    void Promise.all([germanProgress.getCourseProgress(), germanProgress.getDueReviewCards()])
+    const refreshLocal = () => Promise.all([germanProgress.getCourseProgress(), germanProgress.getDueReviewCards()])
       .then(([nextProgress, due]) => {
         if (!alive) return;
         setProgress(nextProgress);
@@ -56,6 +58,11 @@ export default function GermanSentenceHome() {
         setError('');
       })
       .catch(() => { if (alive) setError('پیشرفت ذخیره‌شده خوانده نشد؛ درس‌ها همچنان از کتابخانه در دسترس‌اند.'); });
+    void refreshLocal();
+    void syncPersonalLearningData().then(result => {
+      if (result.status === 'synced') return refreshLocal();
+      return undefined;
+    }).catch(() => undefined); // Keep locally saved lessons usable when the cloud is offline or not configured.
     return () => { alive = false; };
   }, [retry]));
 
@@ -322,9 +329,26 @@ export default function GermanSentenceHome() {
             </Pressable>
           </View>
 
+          <Pressable accessibilityRole="button" accessibilityLabel="باز کردن کارگاه تلفظ آلمانی" accessibilityHint="تمرین آواهای مهم آلمانی، تکیه و آهنگ جمله؛ بدون ضبط میکروفن" style={[styles.quickCard, { flex: 0 }, compact && styles.quickCardCompact]} onPress={() => router.push('/learn/de/pronunciation' as never)}>
+            <View style={[styles.quickIcon, { backgroundColor: Palette.primarySoft }]}><Volume2 size={19} color={Palette.primary} /></View>
+            <View style={styles.quickCopy}><Text style={styles.quickTitle}>کارگاه تلفظ آلمانی</Text><Text style={styles.quickDesc}>تمرین واکه‌ها، ch، تکیه و آهنگ جمله؛ یادداشت شخصی و همگام‌سازی حساب</Text></View>
+            <ChevronLeft size={17} color={Palette.muted} />
+          </Pressable>
+
+          <Pressable accessibilityRole="button" accessibilityLabel="سنجش آغازین آلمانی برای انتخاب نقطهٔ شروع" style={[styles.quickCard, { flex: 0 }, compact && styles.quickCardCompact]} onPress={() => router.push({ pathname: '/placement', params: { language: 'de' } } as never)}>
+            <View style={[styles.quickIcon, { backgroundColor: Palette.primarySoft }]}><Compass size={19} color={Palette.primary} /></View>
+            <View style={styles.quickCopy}><Text style={styles.quickTitle}>پیداکردن نقطهٔ شروع</Text><Text style={styles.quickDesc}>سنجش کوتاه و اختیاری برای انتخاب سطح آلمانی</Text></View>
+            <ChevronLeft size={17} color={Palette.muted} />
+          </Pressable>
+
           <Pressable accessibilityRole="button" style={[styles.quickCard, { flex: 0 }, compact && styles.quickCardCompact]} onPress={() => router.push('/learn/de/backup' as never)}>
             <View style={[styles.quickIcon, { backgroundColor: Palette.goldSoft }]}><Download size={19} color={Palette.warning} /></View>
             <View style={styles.quickCopy}><Text style={styles.quickTitle}>پشتیبان پیشرفت</Text><Text style={styles.quickDesc}>ذخیره و بازیابی سابقهٔ همین دستگاه</Text></View>
+            <ChevronLeft size={17} color={Palette.muted} />
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="ورود ایمیلی و همگام‌سازی شخصی" style={[styles.quickCard, { flex: 0 }, compact && styles.quickCardCompact]} onPress={() => router.push('/personal-sync' as never)}>
+            <View style={[styles.quickIcon, { backgroundColor: Palette.primarySoft }]}><Cloud size={19} color={Palette.primary} /></View>
+            <View style={styles.quickCopy}><Text style={styles.quickTitle}>حساب و همگام‌سازی</Text><Text style={styles.quickDesc}>پیشرفت و تلفظ هر دو زبان میان دستگاه‌ها</Text></View>
             <ChevronLeft size={17} color={Palette.muted} />
           </Pressable>
 

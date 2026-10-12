@@ -1,12 +1,13 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
-import { BookOpen, BookOpenCheck, RefreshCw } from 'lucide-react-native';
+import { BookOpen, BookOpenCheck, RefreshCw, Volume2 } from 'lucide-react-native';
 import { Radius, Typography } from '@/lib/theme';
 import { GermanPalette as Palette } from '@/components/germanTheme';
 
 const items = [
   { path: '/learn/de', label: 'یادگیری', icon: BookOpen },
   { path: '/learn/de/library', label: 'کتابخانه', icon: BookOpenCheck },
+  { path: '/learn/de/pronunciation', label: 'تلفظ', icon: Volume2 },
   { path: '/learn/de/reviews', label: 'مرور', icon: RefreshCw },
 ] as const;
 
@@ -20,6 +21,7 @@ export function GermanBottomNav() {
         const active = item.path === '/learn/de'
           ? pathname === '/learn/de' || pathname.startsWith('/learn/de/')
             && !pathname.startsWith('/learn/de/library')
+            && !pathname.startsWith('/learn/de/pronunciation')
             && !pathname.startsWith('/learn/de/review')
           : pathname.startsWith(item.path);
         const Icon = item.icon;
@@ -63,7 +65,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     elevation: 5,
   },
-  item: { flex: 1, minWidth: 76, alignItems: 'center', gap: 2 },
+  item: { flex: 1, minWidth: 52, alignItems: 'center', gap: 2 },
   iconWrap: { width: 42, height: 32, borderRadius: Radius.full, alignItems: 'center', justifyContent: 'center' },
   iconWrapActive: { backgroundColor: Palette.primarySoft },
   label: { fontFamily: Typography.fontFamily, fontSize: 10, color: Palette.muted },

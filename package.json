@@ -19,6 +19,12 @@
     "validate:russian-architecture": "node scripts/verify-russian-architecture.cjs",
     "validate:english-supplement": "node scripts/verify-english-supplement.cjs",
     "validate:english-engine": "node scripts/verify-english-engine.cjs",
+    "validate:placement": "node scripts/verify-placement.cjs",
+    "validate:speech-policy": "node scripts/verify-speech-policy.mjs",
+    "validate:backup": "node scripts/verify-english-backup.mjs",
+    "validate:a11y": "node scripts/verify-accessibility-static.mjs",
+    "validate:pronunciation": "node scripts/verify-pronunciation-course.mjs",
+    "validate:personal-sync": "node scripts/verify-personal-sync.mjs",
     "validate:english-four": "node scripts/verify-english-four.cjs",
     "prebuild:web": "node scripts/check-public-connection.mjs"
   },

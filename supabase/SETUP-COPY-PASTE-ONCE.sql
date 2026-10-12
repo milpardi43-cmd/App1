@@ -971,17 +971,38 @@ CREATE TABLE IF NOT EXISTS learning_progress (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-ALTER TABLE learning_progress ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS learning_progress_read_self ON learning_progress;
-CREATE POLICY learning_progress_read_self ON learning_progress FOR SELECT TO authenticated
-USING (user_id = auth.uid());
-DROP POLICY IF EXISTS learning_progress_insert_self ON learning_progress;
-CREATE POLICY learning_progress_insert_self ON learning_progress FOR INSERT TO authenticated
-WITH CHECK (user_id = auth.uid());
-DROP POLICY IF EXISTS learning_progress_update_self ON learning_progress;
-CREATE POLICY learning_progress_update_self ON learning_progress FOR UPDATE TO authenticated
-USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-GRANT SELECT, INSERT, UPDATE ON learning_progress TO authenticated;
+ALTER TABLE public.learning_progress
+  ADD COLUMN IF NOT EXISTS language_progress jsonb NOT NULL DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS pronunciation_progress jsonb NOT NULL DEFAULT '{}'::jsonb;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = 'public.learning_progress'::regclass AND conname = 'learning_progress_language_progress_object') THEN
+    ALTER TABLE public.learning_progress ADD CONSTRAINT learning_progress_language_progress_object CHECK (jsonb_typeof(language_progress) = 'object');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = 'public.learning_progress'::regclass AND conname = 'learning_progress_pronunciation_progress_object') THEN
+    ALTER TABLE public.learning_progress ADD CONSTRAINT learning_progress_pronunciation_progress_object CHECK (jsonb_typeof(pronunciation_progress) = 'object');
+  END IF;
+END
+$$;
+
+ALTER TABLE public.learning_progress ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE public.learning_progress FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE ON TABLE public.learning_progress TO authenticated;
+DO $$
+DECLARE policy_row record;
+BEGIN
+  FOR policy_row IN
+    SELECT policyname FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'learning_progress'
+  LOOP
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.learning_progress', policy_row.policyname);
+  END LOOP;
+END
+$$;
+CREATE POLICY personal_learning_progress_owner ON public.learning_progress
+  FOR ALL TO authenticated
+  USING (user_id = (SELECT auth.uid()))
+  WITH CHECK (user_id = (SELECT auth.uid()));
 
 CREATE TABLE IF NOT EXISTS daily_ai_usage (
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,

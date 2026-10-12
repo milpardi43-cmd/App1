@@ -31,6 +31,7 @@ const esbuild = require('esbuild');
   const survival = app.SENTENCE_LESSONS.filter(lesson => lesson.levelId === 1);
   const everyday = app.SENTENCE_LESSONS.filter(lesson => lesson.levelId === 2);
   const communication = app.SENTENCE_LESSONS.filter(lesson => lesson.levelId === 3);
+  const advanced = app.SENTENCE_LESSONS.filter(lesson => lesson.levelId === 4);
   check(foundation.length === 10 && foundation.reduce((sum, lesson) => sum + lesson.sentences.length, 0) === 500);
   check(foundation.every(lesson => lesson.sentences.length === 50 && lesson.sentences.every(sentence => sentence.fa && sentence.pronunciation && sentence.pattern && sentence.vocabulary.length > 0)));
   check(foundation.every(lesson => new Set(lesson.sentences.map(sentence => sentence.en)).size === 50
@@ -88,6 +89,21 @@ const esbuild = require('esbuild');
     && app.COMMUNICATION_COURSE_LESSON_IDS.every(id => communicationUnitIds.includes(id))
     && app.ENGLISH_ENGINE_BLUEPRINT[3].modules.join('|') === app.COMMUNICATION_MODULES.map(unit => unit.titleEn).join('|')
     && app.COURSE_LEVELS[3].modules.join('|') === app.COMMUNICATION_MODULES.map(unit => unit.titleFa).join('|'));
+  check(advanced.length === 110 && advanced.reduce((sum, lesson) => sum + lesson.sentences.length, 0) === 662);
+  const advancedComposition = app.getAdvancedContentComposition();
+  assert.deepEqual(advancedComposition, {
+    scenarioLessonCount: 52,
+    scenarioSentenceCount: advanced.filter(lesson => lesson.contentKind === 'scenario').reduce((sum, lesson) => sum + lesson.sentences.length, 0),
+    vocabularyPracticeLessonCount: 58,
+    vocabularyPracticeSentenceCount: advanced.filter(lesson => lesson.contentKind === 'vocabulary-practice').reduce((sum, lesson) => sum + lesson.sentences.length, 0),
+    totalLessonCount: 110,
+    totalSentenceCount: 662,
+  }); checks += 1;
+  check(advanced.every(lesson => lesson.contentKind === 'scenario' || lesson.contentKind === 'vocabulary-practice'));
+  check(advanced.slice(0, 52).every(lesson => lesson.contentKind === 'scenario')
+    && advanced.slice(52).every(lesson => lesson.contentKind === 'vocabulary-practice'));
+  check(!app.ENGLISH_ENGINE_BLUEPRINT[4].modules.some(module => /IELTS|Academic English|Writing Skills|Professional Speaking/i.test(module)));
+  check(!/\b(?:A1|A2|B1|B2|C1|C2)\b/.test(app.COURSE_LEVELS[4].cefr));
   check(survival.map(lesson => lesson.id).join('|') === [
     'survival-job-interview', 'survival-renting-a-home', 'survival-personal-information',
     'survival-directions-and-neighborhood', 'survival-public-transport', 'survival-cafe-and-food',

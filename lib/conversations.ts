@@ -1,6 +1,7 @@
 import type { RealtimeChannel, User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { readableSupabaseError } from './errors';
+import { requireOnlineAudioEnabled } from './onlineAudioPolicy';
 
 export interface RealContact {
   id: string;
@@ -133,6 +134,7 @@ export async function sendVoiceMessage(
   audioUri: string,
   durationSeconds: number,
 ): Promise<DirectMessage> {
+  requireOnlineAudioEnabled();
   const user = await ensureChatIdentity();
   const response = await fetch(audioUri);
   if (!response.ok) throw new Error('فایل صوتی خوانده نشد.');

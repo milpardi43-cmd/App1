@@ -1,11 +1,12 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
-import { BookOpen, MessageCircle, RefreshCw } from 'lucide-react-native';
+import { BookOpen, MessageCircle, RefreshCw, Volume2 } from 'lucide-react-native';
 import { Radius, Typography } from '@/lib/theme';
 import { EnglishPalette as Palette } from '@/components/EnglishSupplementTask';
 
 const items = [
   { path: '/lang', label: 'یادگیری', icon: BookOpen },
+  { path: '/learn/en/pronunciation', label: 'تلفظ', icon: Volume2 },
   { path: '/conversations', label: 'مکالمه', icon: MessageCircle },
   { path: '/review', label: 'مرور', icon: RefreshCw },
 ] as const;
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     elevation: 5,
   },
-  item: { flex: 1, minWidth: 76, alignItems: 'center', gap: 2 },
+  item: { flex: 1, minWidth: 52, alignItems: 'center', gap: 2 },
   iconWrap: {
     width: 42,
     height: 32,

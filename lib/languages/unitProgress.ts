@@ -36,6 +36,9 @@ export function scoreAttempt(results: ExerciseResult[], exercises: LearningExerc
   };
 }
 function blank(): UnitProgress { return { version: 1, activities: {}, missions: [] }; }
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
 function validAttempt(value: unknown, exercises: LearningExercise[]): value is UnitAttempt {
   if (!value || typeof value !== 'object') return false;
   const v = value as UnitAttempt;
@@ -44,7 +47,54 @@ function validAttempt(value: unknown, exercises: LearningExercise[]): value is U
     && new Set(v.results.map(r => r?.exerciseId)).size === exercises.length
     && v.results.every(r => r && exercises.some(e => e.id === r.exerciseId) && typeof r.correct === 'boolean' && typeof r.assisted === 'boolean');
 }
+export function parseUnitProgress(value: unknown, unit: LearningUnit): UnitProgress {
+  if (!isRecord(value) || value.version !== 1
+    || (value.activities !== undefined && !isRecord(value.activities))
+    || (value.missions !== undefined && !Array.isArray(value.missions))) {
+    throw new Error('پیشرفت واحد آموزشی معتبر نیست؛ دادهٔ محلی تغییر نکرد.');
+  }
+  const result = blank();
+  const activities = (value.activities ?? {}) as Record<string, unknown>;
+  for (const [lessonId, attempt] of Object.entries(activities)) {
+    const lesson = unit.lessons.find(item => item.id === lessonId);
+    if (!lesson || !validAttempt(attempt, lesson.exercises)) throw new Error('فعالیت یک درس در پیشرفت ابری معتبر نیست.');
+    result.activities[lessonId] = attempt;
+  }
+  const missions = (value.missions ?? []) as unknown[];
+  if (missions.some(attempt => !validAttempt(attempt, unit.mission))) throw new Error('تمرین پایانی در پیشرفت ابری معتبر نیست.');
+  result.missions = missions as UnitAttempt[];
+  return result;
+}
+
+export function mergeUnitProgressSnapshots(current: UnitProgress, incoming: UnitProgress, unit: LearningUnit): UnitProgress {
+  const activities: Record<string, UnitAttempt> = { ...incoming.activities };
+  for (const [lessonId, candidate] of Object.entries(current.activities)) {
+    const prior = activities[lessonId];
+    if (!prior || Date.parse(candidate.finishedAt) > Date.parse(prior.finishedAt)
+      || (candidate.finishedAt === prior.finishedAt && JSON.stringify(candidate) > JSON.stringify(prior))) activities[lessonId] = candidate;
+  }
+  const missions = new Map<string, UnitAttempt>();
+  for (const attempt of [...incoming.missions, ...current.missions]) {
+    const prior = missions.get(attempt.id);
+    if (!prior || Date.parse(attempt.finishedAt) > Date.parse(prior.finishedAt)
+      || (attempt.finishedAt === prior.finishedAt && JSON.stringify(attempt) > JSON.stringify(prior))) missions.set(attempt.id, attempt);
+  }
+  return parseUnitProgress({ version: 1, activities, missions: [...missions.values()]
+    .sort((a, b) => Date.parse(a.finishedAt) - Date.parse(b.finishedAt) || a.id.localeCompare(b.id)).slice(-20) }, unit);
+}
+
 export function unitProgressKey(unit: LearningUnit = FIRST_MEETING) { return unit.id === FIRST_MEETING.id && unit.version === 1 ? UNIT_PROGRESS_KEY : `learning_unit_${unit.id}_v${unit.version}`; }
+async function readRaw(unit: LearningUnit): Promise<string | null> {
+  const key = unitProgressKey(unit);
+  return Platform.OS === 'web' ? (typeof window === 'undefined' ? null : window.localStorage.getItem(key)) : AsyncStorage.getItem(key);
+}
+async function writeRaw(unit: LearningUnit, raw: string): Promise<void> {
+  const key = unitProgressKey(unit);
+  if (Platform.OS === 'web') {
+    if (typeof window === 'undefined') throw new Error('Local storage unavailable');
+    window.localStorage.setItem(key, raw);
+  } else await AsyncStorage.setItem(key, raw);
+}
 export async function getUnitProgress(unit: LearningUnit = FIRST_MEETING): Promise<UnitProgress> {
   const raw = Platform.OS === 'web' ? (typeof window === 'undefined' ? null : window.localStorage.getItem(unitProgressKey(unit))) : await AsyncStorage.getItem(unitProgressKey(unit));
   if (!raw) return blank();
@@ -60,16 +110,36 @@ export async function getUnitProgress(unit: LearningUnit = FIRST_MEETING): Promi
   result.missions = Array.isArray(value.missions) ? value.missions.filter(a => validAttempt(a, unit.mission)).slice(-20) : [];
   return result;
 }
-// Serialize writes in this JS runtime; cross-device sync is intentionally not claimed.
+// Serialize local writes in this JS runtime; the account-level sync wrapper handles cloud merge separately.
 let writing: Promise<unknown> = Promise.resolve();
+function scheduleAccountSync() {
+  void import('../personalLearningSync')
+    .then(({ schedulePersonalLearningSync }) => schedulePersonalLearningSync())
+    .catch(() => undefined);
+}
 function update(unit: LearningUnit, change: (value: UnitProgress) => void): Promise<void> {
   const next = writing.catch(() => undefined).then(async () => {
     const value = await getUnitProgress(unit); change(value);
-    const raw = JSON.stringify(value);
-    if (Platform.OS === 'web') {
-      if (typeof window === 'undefined') throw new Error('Local storage unavailable');
-      window.localStorage.setItem(unitProgressKey(unit), raw);
-    } else await AsyncStorage.setItem(unitProgressKey(unit), raw);
+    await writeRaw(unit, JSON.stringify(value));
+    if (unit.language === 'de' || unit.language === 'en') scheduleAccountSync();
+  });
+  writing = next;
+  return next;
+}
+export function mergeRemoteUnitProgress(unit: LearningUnit, remote: unknown): Promise<UnitProgress> {
+  const next = writing.catch(() => undefined).then(async () => {
+    const raw = await readRaw(unit);
+    let current = blank();
+    if (raw !== null) {
+      let parsed: unknown;
+      try { parsed = JSON.parse(raw); }
+      catch { throw new Error('دادهٔ محلی پیشرفت این واحد خوانا نیست؛ برای جلوگیری از حذف، ادغام انجام نشد.'); }
+      current = parseUnitProgress(parsed, unit);
+    }
+    const incoming = parseUnitProgress(remote, unit);
+    const merged = mergeUnitProgressSnapshots(current, incoming, unit);
+    if (JSON.stringify(merged) !== JSON.stringify(current)) await writeRaw(unit, JSON.stringify(merged));
+    return merged;
   });
   writing = next;
   return next;

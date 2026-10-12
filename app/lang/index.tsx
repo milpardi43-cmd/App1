@@ -12,16 +12,20 @@ import {
   ChevronUp,
   Clock3,
   Compass,
+  Cloud,
+  Download,
   Flame,
   MessageCircle,
   Play,
   RefreshCw,
   Sparkles,
+  Volume2,
 } from 'lucide-react-native';
 import { AppBottomNav } from '@/components/AppBottomNav';
 import { PageNavigation } from '@/components/PageNavigation';
 import { COURSE_LEVELS, SENTENCE_LESSONS } from '@/lib/courseContent';
 import { getCourseProgress, type CourseProgress } from '@/lib/courseProgress';
+import { syncPersonalLearningData } from '@/lib/personalLearningSync';
 import { Radius, Typography } from '@/lib/theme';
 import { toPersianDigits } from '@/lib/format';
 import { loadStudy, studyDay } from '@/lib/englishStudyState';
@@ -69,7 +73,12 @@ export default function LearningHome() {
 
   useFocusEffect(useCallback(() => {
     let alive = true;
-    void getCourseProgress().then(next => { if (alive) setProgress(next); });
+    const refreshCourse = () => getCourseProgress().then(next => { if (alive) setProgress(next); });
+    void refreshCourse();
+    void syncPersonalLearningData().then(result => {
+      if (result.status === 'synced') return refreshCourse();
+      return undefined;
+    }).catch(() => undefined); // Local progress remains available if cloud setup or connectivity is unavailable.
     return () => { alive = false; };
   }, []));
 
@@ -350,6 +359,44 @@ export default function LearningHome() {
                 <ChevronLeft size={17} color={HomeColors.muted} />
               </Pressable>
             </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="باز کردن کارگاه تلفظ انگلیسی"
+              accessibilityHint="تمرین صداهای انگلیسی، تکیه و آهنگ جمله؛ بدون ضبط میکروفن"
+              style={({ pressed }) => [styles.quickCard, pressed && styles.buttonPressed]}
+              onPress={() => router.push('/learn/en/pronunciation' as never)}
+            >
+              <View style={[styles.quickIcon, { backgroundColor: HomeColors.accentSoft }]}><Volume2 size={18} color={HomeColors.accent} /></View>
+              <View style={styles.quickCopy}>
+                <Text style={styles.quickTitle}>کارگاه تلفظ انگلیسی</Text>
+                <Text style={styles.quickDesc}>تمرین صداها، تکیه و آهنگ جمله؛ خودارزیابی و همگام‌سازی حساب</Text>
+              </View>
+              <ChevronLeft size={17} color={HomeColors.muted} />
+            </Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="سنجش آغازین انگلیسی برای انتخاب نقطهٔ شروع" style={({ pressed }) => [styles.quickCard, pressed && styles.buttonPressed]} onPress={() => router.push({ pathname: '/placement', params: { language: 'en' } } as never)}>
+              <View style={[styles.quickIcon, { backgroundColor: HomeColors.amberSoft }]}><Compass size={18} color={HomeColors.amber} /></View>
+              <View style={styles.quickCopy}>
+                <Text style={styles.quickTitle}>پیداکردن نقطهٔ شروع</Text>
+                <Text style={styles.quickDesc}>سنجش کوتاه و اختیاری برای انتخاب سطح انگلیسی</Text>
+              </View>
+              <ChevronLeft size={17} color={HomeColors.muted} />
+            </Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="پشتیبان‌گیری محلی از پیشرفت انگلیسی" style={({ pressed }) => [styles.quickCard, pressed && styles.buttonPressed]} onPress={() => router.push('/lang/backup' as never)}>
+              <View style={[styles.quickIcon, { backgroundColor: HomeColors.sageSoft }]}><Download size={18} color={HomeColors.sage} /></View>
+              <View style={styles.quickCopy}>
+                <Text style={styles.quickTitle}>پشتیبان پیشرفت</Text>
+                <Text style={styles.quickDesc}>ذخیره و بازیابی امن سابقهٔ محلی انگلیسی</Text>
+              </View>
+              <ChevronLeft size={17} color={HomeColors.muted} />
+            </Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="ورود ایمیلی و همگام‌سازی شخصی" style={({ pressed }) => [styles.quickCard, pressed && styles.buttonPressed]} onPress={() => router.push('/personal-sync' as never)}>
+              <View style={[styles.quickIcon, { backgroundColor: HomeColors.accentSoft }]}><Cloud size={18} color={HomeColors.accent} /></View>
+              <View style={styles.quickCopy}>
+                <Text style={styles.quickTitle}>حساب و همگام‌سازی</Text>
+                <Text style={styles.quickDesc}>پیشرفت و تلفظ هر دو زبان میان دستگاه‌ها</Text>
+              </View>
+              <ChevronLeft size={17} color={HomeColors.muted} />
+            </Pressable>
           </View>
 
           <LinearGradient colors={['#25214E', '#443571']} start={{ x: .95, y: .1 }} end={{ x: .05, y: 1 }} style={styles.noteCard}>

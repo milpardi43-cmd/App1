@@ -36,8 +36,8 @@ export const ENGLISH_ENGINE_BLUEPRINT = [
   {
     levelId: 4,
     title: 'Advanced English',
-    band: 'Level 4 · B2–C1',
-    modules: ['Academic English', 'Business English', 'IELTS Preparation', 'Advanced Vocabulary', 'Idioms & Collocations', 'Writing Skills', 'Professional Speaking'],
+    band: 'Level 4 · برچسب داخلی',
+    modules: ['Work & Decisions', 'Media & Society', 'Science & Environment', 'Travel & Public Safety', 'Personal Growth & Relationships', 'Vocabulary Practice Sets'],
   },
 ] as const satisfies ReadonlyArray<{
   levelId: CourseLevelId;
@@ -92,6 +92,20 @@ export function getEnglishLevelMetrics(levelId: CourseLevelId, completedLessonId
     sentenceCount: sentences.length,
     patternCount: sentences.filter(sentence => !!sentence.pattern).length,
     vocabularyCount: words.size,
+  };
+}
+
+export function getAdvancedContentComposition() {
+  const lessons = SENTENCE_LESSONS.filter(lesson => lesson.levelId === 4);
+  const scenarios = lessons.filter(lesson => lesson.contentKind === 'scenario');
+  const vocabularyPractice = lessons.filter(lesson => lesson.contentKind === 'vocabulary-practice');
+  return {
+    scenarioLessonCount: scenarios.length,
+    scenarioSentenceCount: scenarios.reduce((total, lesson) => total + lesson.sentences.length, 0),
+    vocabularyPracticeLessonCount: vocabularyPractice.length,
+    vocabularyPracticeSentenceCount: vocabularyPractice.reduce((total, lesson) => total + lesson.sentences.length, 0),
+    totalLessonCount: lessons.length,
+    totalSentenceCount: lessons.reduce((total, lesson) => total + lesson.sentences.length, 0),
   };
 }
 

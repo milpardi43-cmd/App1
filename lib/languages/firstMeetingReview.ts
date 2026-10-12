@@ -11,4 +11,9 @@ export const FIRST_MEETING_REVIEW_LESSONS: LearningLesson[] = FIRST_MEETING.less
 }));
 export const firstMeetingReview = createCourseProgressStore({
   key: 'sentence_review_de_first_meeting_v1', lessons: FIRST_MEETING_REVIEW_LESSONS, cloudSync: false,
+  afterLocalSave: () => {
+    void import('../personalLearningSync')
+      .then(({ schedulePersonalLearningSync }) => schedulePersonalLearningSync())
+      .catch(() => undefined);
+  },
 });

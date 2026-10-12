@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BookOpen, ChevronDown, ChevronLeft, Globe2, Headphones, Layers3, ShieldCheck, Sparkles, Star } from 'lucide-react-native';
+import { BookOpen, ChevronDown, ChevronLeft, Cloud, Globe2, Headphones, Layers3, ShieldCheck, Sparkles, Star } from 'lucide-react-native';
 import { LANGUAGES } from '@/lib/languages/catalog';
 import { FEATURES } from '@/lib/features';
 import { COURSE_LEVELS, SENTENCE_LESSONS, type CourseLevelId } from '@/lib/courseContent';
@@ -228,9 +228,23 @@ export default function LanguagesHome() {
             <View style={styles.shield}><ShieldCheck size={20} color="#527745" /></View>
             <View style={styles.reassuranceCopy}>
               <Text style={styles.reassuranceTitle}>دو زبان، دو مسیر روشن</Text>
-              <Text style={styles.reassuranceText}>درس‌ها و پیشرفت هر زبان جدا ذخیره می‌شوند؛ انتخاب مسیر دیگر، قدم‌های قبلی‌ات را پاک نمی‌کند.</Text>
+              <Text style={styles.reassuranceText}>هر مسیر سابقهٔ جدا دارد؛ با ورود ایمیلی می‌توانی آن‌ها را امن میان دستگاه‌ها همگام کنی.</Text>
             </View>
           </View>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="ورود ایمیلی و همگام‌سازی امن پیشرفت انگلیسی، آلمانی و تلفظ میان دستگاه‌ها"
+            onPress={() => router.push('/personal-sync' as never)}
+            style={({ pressed }) => [styles.syncCard, pressed && styles.syncCardPressed]}
+          >
+            <View style={styles.syncIcon}><Cloud size={20} color="#FFFFFF" /></View>
+            <View style={styles.syncCopy}>
+              <Text style={styles.syncTitle}>همگام‌سازی میان دستگاه‌ها</Text>
+              <Text style={styles.syncText}>ورود ایمیلی با کد یک‌بارمصرف؛ ادغام بدون پاک‌شدن پیشرفت قبلی</Text>
+            </View>
+            <ChevronLeft size={18} color="#6554B4" />
+          </Pressable>
 
           <View style={styles.note}>
             <Pressable accessibilityRole="button" accessibilityLabel="اطلاعات مسیرهای انگلیسی و آلمانی" accessibilityState={{ expanded: details }} onPress={() => setDetails(!details)} style={styles.noteToggle}>
@@ -238,7 +252,7 @@ export default function LanguagesHome() {
                 <BookOpen size={17} color={muted} />
                 <View style={styles.noteCopy}>
                   <Text style={styles.noteTitle}>مسیرهای انگلیسی و آلمانی · سطح‌ها و دامنهٔ محتوا</Text>
-                  <Text style={styles.noteCaption}>کتابخانه‌های فعال · شمار درس‌ها و جمله‌ها</Text>
+                  <Text style={styles.noteCaption}>کتابخانه‌های فعال · آمار محتوا و سنجش آغازین اختیاری</Text>
                 </View>
               </View>
               <ChevronDown size={18} color={muted} style={{ transform: [{ rotate: details ? '180deg' : '0deg' }] }} />
@@ -259,6 +273,10 @@ export default function LanguagesHome() {
                       </View>
                     ))}
                   </View>
+                  <Pressable accessibilityRole="button" accessibilityLabel="شروع سنجش آغازین انگلیسی" onPress={() => router.push({ pathname: '/placement', params: { language: 'en' } } as never)} style={({ pressed }) => [styles.placementButton, styles.placementEnglish, pressed && styles.cardPressed]}>
+                    <Text style={styles.placementButtonText}>پیداکردن نقطهٔ شروع انگلیسی</Text>
+                    <ChevronLeft size={16} color="#FFFFFF" />
+                  </Pressable>
                 </View>
 
                 <View style={[styles.courseDetailsCard, styles.germanDetailsCard]}>
@@ -277,6 +295,10 @@ export default function LanguagesHome() {
                       </View>
                     ))}
                   </View>
+                  <Pressable accessibilityRole="button" accessibilityLabel="شروع سنجش آغازین آلمانی" onPress={() => router.push({ pathname: '/placement', params: { language: 'de' } } as never)} style={({ pressed }) => [styles.placementButton, styles.placementGerman, pressed && styles.cardPressed]}>
+                    <Text style={styles.placementButtonText}>پیداکردن نقطهٔ شروع آلمانی</Text>
+                    <ChevronLeft size={16} color="#FFFFFF" />
+                  </Pressable>
                 </View>
 
                 <Text style={styles.noteFootnote}>
@@ -398,6 +420,12 @@ const styles = StyleSheet.create({
   reassuranceCopy: { flex: 1, gap: 2 },
   reassuranceTitle: { fontFamily: 'Vazirmatn', color: '#516A45', fontSize: 10, fontWeight: '800', textAlign: 'right', writingDirection: 'rtl' },
   reassuranceText: { fontFamily: 'Vazirmatn', color: '#718168', fontSize: 9, lineHeight: 19, textAlign: 'right', writingDirection: 'rtl' },
+  syncCard: { minHeight: 75, flexDirection: 'row-reverse', alignItems: 'center', gap: 12, paddingHorizontal: 15, paddingVertical: 13, borderRadius: 18, backgroundColor: '#F2F0FC', borderWidth: 1, borderColor: '#DFD9F4' },
+  syncCardPressed: { opacity: .8, transform: [{ scale: .99 }] },
+  syncIcon: { width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: '#6554B4' },
+  syncCopy: { flex: 1, alignItems: 'flex-end', gap: 3 },
+  syncTitle: { fontFamily: 'Vazirmatn', color: '#43387D', fontSize: 11, fontWeight: '800', textAlign: 'right', writingDirection: 'rtl' },
+  syncText: { fontFamily: 'Vazirmatn', color: '#706A8E', fontSize: 9, lineHeight: 17, textAlign: 'right', writingDirection: 'rtl' },
   note: { borderTopWidth: 1, borderTopColor: '#E7E1ED', marginTop: 11 },
   noteToggle: { minHeight: 66, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 15 },
   noteLabel: { flex: 1, flexDirection: 'row-reverse', alignItems: 'center', gap: 10 },
@@ -416,6 +444,10 @@ const styles = StyleSheet.create({
   levelSummaryRow: { minHeight: 29, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 4, paddingVertical: 5, borderTopWidth: 1, borderTopColor: 'rgba(110,100,130,0.11)' },
   levelSummaryName: { flexShrink: 0, fontFamily: 'Vazirmatn', color: '#50475F', fontSize: 9, fontWeight: '700', textAlign: 'right', writingDirection: 'rtl' },
   levelSummaryStats: { flexShrink: 1, fontFamily: 'Vazirmatn', color: muted, fontSize: 9, textAlign: 'right', writingDirection: 'rtl' },
+  placementButton: { minHeight: 43, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 12, marginTop: 10, borderRadius: 12 },
+  placementEnglish: { backgroundColor: '#7558D8' },
+  placementGerman: { backgroundColor: '#198373' },
+  placementButtonText: { fontFamily: 'Vazirmatn', color: '#FFFFFF', fontSize: 10, fontWeight: '800', textAlign: 'right', writingDirection: 'rtl' },
   noteFootnote: { fontFamily: 'Vazirmatn', color: muted, fontSize: 9, lineHeight: 18, textAlign: 'right', writingDirection: 'rtl', paddingHorizontal: 4 },
   footer: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 10, paddingBottom: 16 },
   footerLine: { width: 24, height: 1, backgroundColor: '#D3CBDD' },

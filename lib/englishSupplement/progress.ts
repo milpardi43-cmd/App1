@@ -79,7 +79,12 @@ export async function loadSupplement() {
 }
 
 let queue: Promise<unknown> = Promise.resolve();
-function update(mutate: (p: SupplementProgress) => void): Promise<SupplementProgress> {
+function scheduleAccountSync() {
+  void import('../personalLearningSync')
+    .then(({ schedulePersonalLearningSync }) => schedulePersonalLearningSync())
+    .catch(() => undefined);
+}
+function update(mutate: (p: SupplementProgress) => void, sync = true): Promise<SupplementProgress> {
   const work = queue.then(async () => {
     const p = await loadSupplement();
     mutate(p);
@@ -88,6 +93,7 @@ function update(mutate: (p: SupplementProgress) => void): Promise<SupplementProg
       if (typeof window === 'undefined') throw Error('ذخیره‌سازی در دسترس نیست.');
       window.localStorage.setItem(SUPPLEMENT_KEY, raw);
     } else await AsyncStorage.setItem(SUPPLEMENT_KEY, raw);
+    if (sync) scheduleAccountSync();
     return p;
   });
   queue = work.catch(() => {});
@@ -102,7 +108,8 @@ export function recordEvidence(task: Task, correct: boolean, heard: boolean) {
 }
 
 export function saveDraft(id: string, value: string) {
-  return update(p => { p.drafts[id] = value.slice(0, 4000); });
+  // Free-text answers stay on this device; only learning evidence and outcomes sync.
+  return update(p => { p.drafts[id] = value.slice(0, 4000); }, false);
 }
 export function saveChecklist(id: string, item: string, checked: boolean) {
   return update(p => { p.checklists[id] = { ...p.checklists[id], [item]: checked }; });
