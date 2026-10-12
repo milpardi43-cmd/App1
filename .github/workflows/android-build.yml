@@ -7,8 +7,7 @@ on:
       - arena/b2da2695-app1
 
 permissions:
-  contents: read
-  actions: read
+  contents: write
 
 jobs:
   build-android-apk:
@@ -96,17 +95,25 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Deliver APK to the requesting workspace
-        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[apk-delivery]') }}
-        continue-on-error: true
-        env:
-          APK_DELIVERY_URL: https://8765-i526nqncs8u7om596uhi8.e2b.app/upload
-          APK_DELIVERY_AUTH: ${{ github.token }}
-        run: |
-          echo "::add-mask::$APK_DELIVERY_AUTH"
-          curl --fail --silent --show-error --connect-timeout 20 --max-time 600 -X POST -H "Authorization: Bearer $APK_DELIVERY_AUTH" -H "X-GitHub-Run-Id: $GITHUB_RUN_ID" -H "Content-Type: application/vnd.android.package-archive" --data-binary @android/app/build/outputs/apk/debug/app-debug.apk "$APK_DELIVERY_URL"
+      - name: Name APK for direct download
+        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[apk-release]') }}
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk MiloMultiApp.apk
 
-      - name: Upload APK
+      - name: Publish direct APK download
+        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[apk-release]') }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: milomultiapp-android-${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          name: "MiloMultiApp Android build #${{ github.run_number }}"
+          body: Installable personal-use Android APK. The APK is signed for sideloading.
+          prerelease: true
+          files: MiloMultiApp.apk
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: MiloMultiApp-android-apk
