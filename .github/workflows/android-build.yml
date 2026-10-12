@@ -117,37 +117,19 @@ jobs:
           target: default
           emulator-boot-timeout: 900
           disable-animations: true
-          script: |
-            set -eu
-            if ! install_log="$(adb install -r android/app/build/outputs/apk/release/app-release.apk 2>&1)"; then
-              echo "$install_log"
-              echo "::error title=APK install failed::$(printf '%s' "$install_log" | paste -sd ' ' - | cut -c1-3000)"
-              exit 1
-            fi
-            adb logcat -c
-            if ! start_log="$(adb shell am start -W -n com.devicecontrol.companion/.MainActivity 2>&1)"; then
-              echo "$start_log"
-              echo "::error title=Activity launch failed::$(printf '%s' "$start_log" | paste -sd ' ' - | cut -c1-3000)"
-              exit 1
-            fi
-            printf '%s' "$start_log"
-            if ! dump_log="$(adb shell uiautomator dump /sdcard/milomultiapp-window.xml 2>&1)"; then
-              echo "$dump_log"
-              echo "::error title=Android UI dump failed::$(printf '%s' "$dump_log" | paste -sd ' ' - | cut -c1-3000)"
-              exit 1
-            fi
-            if ! adb pull /sdcard/milomultiapp-window.xml /tmp/milomultiapp-window.xml >/dev/null 2>&1; then
-              echo "::error title=Android UI dump unavailable::The emulator did not return the UI hierarchy."
-              exit 1
-            fi
-            if ! grep -Fq 'کدام دنیا را باز کنیم' /tmp/milomultiapp-window.xml; then
-              ui="$(paste -sd ' ' - < /tmp/milomultiapp-window.xml | cut -c1-2000)"
-              activity="$(adb shell dumpsys activity activities | grep -E 'mResumedActivity|topResumedActivity' | tail -1 | paste -sd ' ' - || true)"
-              logs="$(adb logcat -d -t 3000 | grep -E 'FATAL EXCEPTION|Unable to load script|AppStartupError|ReactNativeJS' | tail -20 | paste -sd ' ' - | cut -c1-3000 || true)"
-              echo "::error title=Language screen not rendered::UI=$ui ACTIVITY=$activity LOGS=$logs"
-              exit 1
-            fi
-            echo 'Android emulator opened MiloMultiApp and rendered the language-selection screen.'
+          script: bash .github/scripts/android-emulator-smoke-test.sh
+
+      - name: Upload Android emulator diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-emulator-smoke-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/milomultiapp-emulator-smoke.log
+            ${{ runner.temp }}/milomultiapp-emulator-window.xml
+            ${{ runner.temp }}/milomultiapp-emulator-screen.png
+          if-no-files-found: warn
+          retention-days: 3
 
       - name: Name APK for direct download
         if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[apk-release]') }}
