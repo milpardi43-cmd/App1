@@ -1,0 +1,957 @@
+{
+  "vocabulary": [
+    {
+      "sentence": "advanced-canonical-practice-72-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "shriek",
+        "meaning": "جیغ کشیدن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-72-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "capsule",
+        "meaning": "کپسول"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-73-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "ignite",
+        "meaning": "آتش گرفتن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-73-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "frank",
+        "meaning": "رک و راست"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-74-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "revive",
+        "meaning": "نیروی تازه گرفتن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-74-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "commencing",
+        "meaning": "شروع کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-75-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "hazy",
+        "meaning": "مه رقیق ، مه آلود"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-75-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "gleam",
+        "meaning": "نور ضعیف"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-76-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "violent",
+        "meaning": "خشن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-76-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "opponent",
+        "meaning": "حریف ، رقیب"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-77-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "whirling",
+        "meaning": "چرخش ، چرخیدن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-77-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "underdog",
+        "meaning": "آدم بازنده ، توسری خور"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-78-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "misfortune",
+        "meaning": "بدشانس"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-78-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "tragedy",
+        "meaning": "تراژدی"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-79-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "manipulated",
+        "meaning": "دستکاری کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-79-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "horrid",
+        "meaning": "ترسناک ، مهیب"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-80-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "ingenious",
+        "meaning": "مبتکر"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-80-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "morsel",
+        "meaning": "لقمه"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-81-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "plea",
+        "meaning": "تقاضا"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-81-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "verify",
+        "meaning": "درباره ی صحت چیزی تحقیق کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-82-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "delinquents",
+        "meaning": "بزهکار"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-82-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "homicide",
+        "meaning": "قتل ، قاتل"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-83-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "vermin",
+        "meaning": "آفات جانوری"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-83-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "wail",
+        "meaning": "شیون کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-84-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "pauper",
+        "meaning": "فقیر ، مسکین"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-84-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "bigamy",
+        "meaning": "داشتن دو همسر همزمان"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-85-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "awesome",
+        "meaning": "شگفت‌انگیز؛ پرابهت"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-85-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "guided",
+        "meaning": "راهنما"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-86-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "pacify",
+        "meaning": "آرام کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-86-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "responds",
+        "meaning": "پاسخ دادن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-87-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "disrupted",
+        "meaning": "متلاشی کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-87-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "rash",
+        "meaning": "جوش ، عجولانه"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-88-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "severity",
+        "meaning": "شدت"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-88-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "feeble",
+        "meaning": "ضعیف"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-89-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "miserly",
+        "meaning": "خسیس"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-89-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "monarchs",
+        "meaning": "فرمانروای مطلق"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-90-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "undernourished",
+        "meaning": "سوء تغذیه"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-90-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "illustrate",
+        "meaning": "با مثال توضیح دادن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-91-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "disasters",
+        "meaning": "فاجعه"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-91-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "culprit",
+        "meaning": "مجرم"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-92-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "toil",
+        "meaning": "زحمت"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-92-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "venture",
+        "meaning": "با جسارت یا به خطر انداختن خود پیش رفتن",
+        "essential504": true
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-93-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "maimed",
+        "meaning": "علیل کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-93-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "final",
+        "meaning": "نهایی ، قطعی"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-94-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "repetition",
+        "meaning": "تکرار"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-94-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "depicted",
+        "meaning": "تصویر کردن ، شرح دادن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-95-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "occupant",
+        "meaning": "ساکن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-95-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "quarter",
+        "meaning": "محله"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-96-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "verses",
+        "meaning": "آیه ، بیت"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-96-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "morality",
+        "meaning": "اخلاقیات"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-97-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "confined",
+        "meaning": "محدود کرد؛ خانه‌نشین کرد"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-97-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "idle",
+        "meaning": "بدون فعالیت؛ فراغت"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-98-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "patriotic",
+        "meaning": "میهن‌دوستانه"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-98-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "fertile",
+        "meaning": "بارور؛ حاصلخیز"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-99-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "lunatic",
+        "meaning": "دیوانه؛ واژه‌ای بالقوه توهین‌آمیز"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-99-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "vein",
+        "meaning": "رگه"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-100-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "distressed",
+        "meaning": "درماندگی ،‌ مخمصه"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-100-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "diminishing",
+        "meaning": "کاهش دادن ، تضعیف کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-101-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "vulnerable",
+        "meaning": "آسیب پذیر ، حساس"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-101-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "signifies",
+        "meaning": "معنی دادن ، مهم بودن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-102-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "torments",
+        "meaning": "رنج‌ها؛ عذاب‌ها"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-102-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "provided",
+        "meaning": "به شرط آنکه"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-103-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "shrill",
+        "meaning": "گوش خراش"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-103-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "jolly",
+        "meaning": "شاد ، خوش"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-104-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "lectured",
+        "meaning": "با لحنی نصیحت‌آمیز هشدار داد"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-104-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "mumbling",
+        "meaning": "زیرلب و نامفهوم حرف زدن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-105-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "retaining",
+        "meaning": "نگه داشتن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-105-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "precede",
+        "meaning": "پیش از چیزی قرار گرفتن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-106-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "skimming",
+        "meaning": "با سرعت روی سطح حرکت کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-106-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "vaccinate",
+        "meaning": "واکسینه کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-107-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "sensitive",
+        "meaning": "حساس"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-107-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "temperate",
+        "meaning": "میانه‌رو؛ خویشتن‌دار"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-108-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "lottery",
+        "meaning": "قرعه‌کشی"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-108-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "finance",
+        "meaning": "هزینه را تأمین کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-109-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "discard",
+        "meaning": "دور انداختن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-109-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "soaring",
+        "meaning": "اوج گرفتن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-110-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "stationary",
+        "meaning": "ثابت؛ بدون تغییر"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-110-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "prompted",
+        "meaning": "وادار کرد"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-111-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "tempest",
+        "meaning": "توفان"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-111-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "soothes",
+        "meaning": "آرام کردن ، تسکین دادن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-112-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "resume",
+        "meaning": "از سر گرفتن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-112-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "harmony",
+        "meaning": "سازگار"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-113-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "narcotic",
+        "meaning": "ماده مخدر"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-113-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "heir",
+        "meaning": "وارث"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-114-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "heed",
+        "meaning": "توجه کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-114-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "surplus",
+        "meaning": "مازاد"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-115-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "vandals",
+        "meaning": "خرابکار"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-115-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "abided",
+        "meaning": "پایبند بودن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-116-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "drenching",
+        "meaning": "خیس کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-116-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "swarmed",
+        "meaning": "گله"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-117-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "knelt",
+        "meaning": "زانو زدن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-117-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "dejected",
+        "meaning": "افسرده"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-118-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "tyrant",
+        "meaning": "ظالم"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-118-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "verdict",
+        "meaning": "رای ، عقیده"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-119-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "coincide",
+        "meaning": "همزمان بودن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-119-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "canceled",
+        "meaning": "باطل کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-120-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "placards",
+        "meaning": "پلاکارد"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-120-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "contagious",
+        "meaning": "مسری ، واگیر"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-121-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "scalding",
+        "meaning": "سوزاندن ، سوختگی"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-121-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "epidemic",
+        "meaning": "همه گیر"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-122-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "chiropractor",
+        "meaning": "پزشک متخصص دست یا پا"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-122-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "obstacle",
+        "meaning": "مانع"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-123-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "negative",
+        "meaning": "منفی"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-123-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "pension",
+        "meaning": "مستمری ، حقوق بازنشستگی"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-124-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "oral",
+        "meaning": "مربوط به دهان"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-124-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "wasps",
+        "meaning": "زنبورهای وحشی"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-125-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "vertical",
+        "meaning": "عمودی"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-125-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "multitude",
+        "meaning": "فراوانی ، جمعیت"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-126-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "morgue",
+        "meaning": "سردخانه"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-126-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "preoccupied",
+        "meaning": "مشغول و نگران"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-127-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "maintained",
+        "meaning": "حفظ کردن ، تامین کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-127-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "snubbed",
+        "meaning": "بی اعتنایی کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-128-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "expose",
+        "meaning": "فاش کردن"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-128-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "legend",
+        "meaning": "افسانه ،‌اسطوره"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-129-practice-1",
+      "removed": "context",
+      "replacement": {
+        "word": "drastic",
+        "meaning": "اساسی ، بنیادی"
+      }
+    },
+    {
+      "sentence": "advanced-canonical-practice-129-practice-2",
+      "removed": "example",
+      "replacement": {
+        "word": "wharf",
+        "meaning": "اسکله"
+      }
+    }
+  ],
+  "phonemeFallbackWords": [
+    "Alien's",
+    "Ash's",
+    "Bloomson",
+    "Ellie's",
+    "Eretha",
+    "Zweben",
+    "bigamist",
+    "bigamy",
+    "dungarees",
+    "monster's",
+    "sunset's",
+    "unpolluted",
+    "untidily"
+  ],
+  "translationRepairs": {
+    "advanced-canonical-practice-72-shriek": "خدمتکار وقتی جسد را پیدا کرد، جیغ کشید.",
+    "advanced-canonical-practice-72-capsule": "کپسول کوچک حاوی یادداشت‌هایی بود که جاسوس پس از جلسه نوشته بود.",
+    "advanced-canonical-practice-72-practice-1": "رونالد با جیغی بلند از اتاق گریخت.",
+    "advanced-canonical-practice-72-practice-2": "دانشمندان پلیس دارویی تازه و آزمایش‌نشده را در کپسول شناسایی کردند.",
+    "advanced-canonical-practice-127-endure": "چطور می‌توانی چنین بی‌احترامی‌ای را تحمل کنی؟",
+    "advanced-canonical-practice-127-practice-1": "قاضی بر نظر خود مبنی بر عادلانه بودن حکم پافشاری کرد.",
+    "advanced-canonical-practice-127-practice-2": "ساندرا از این فکر که ممکن است همکلاسی‌هایش به او بی‌اعتنایی کنند، رنج می‌برد."
+  }
+}

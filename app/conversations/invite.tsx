@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ArrowRight, Copy, Link2, QrCode, RefreshCw, Send, ShieldCheck, UserPlus } from 'lucide-react-native';
-import { claimRealContactInvite, createRealContactInvite } from '@/lib/conversations';
+import { Copy, Link2, QrCode, RefreshCw, Send, ShieldCheck, UserPlus } from 'lucide-react-native';
+import {
+  claimRealContactInvite,
+  createRealContactInvite,
+  SUPABASE_NOT_CONFIGURED_MESSAGE,
+} from '@/lib/conversations';
+import { isSupabaseConfigured } from '@/lib/pairing';
+import { SupabaseSetupNotice } from '@/components/SupabaseSetupNotice';
 import { Colors, Radius, Spacing, Typography } from '@/lib/theme';
 import { toPersianDigits } from '@/lib/format';
+import { PageNavigation } from '@/components/PageNavigation';
 
 export default function InviteContactScreen() {
   const router = useRouter();
@@ -15,6 +22,10 @@ export default function InviteContactScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const createInvite = async () => {
+    if (!isSupabaseConfigured()) {
+      setError(SUPABASE_NOT_CONFIGURED_MESSAGE);
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -26,9 +37,18 @@ export default function InviteContactScreen() {
     }
   };
 
+  const configured = isSupabaseConfigured();
+
   useEffect(() => {
+    // Without a real Supabase project neither anonymous sign-in nor the invite
+    // RPC can work, so explain it instead of showing a raw network error.
+    if (!configured) {
+      // The checklist card explains the setup; no red error line on top of it.
+      setError(null);
+      return;
+    }
     void createInvite();
-  }, []);
+  }, [configured]);
 
   const shareInvite = async () => {
     if (!inviteCode) return;
@@ -37,6 +57,10 @@ export default function InviteContactScreen() {
 
   const claimInvite = async () => {
     if (code.length !== 6 || busy) return;
+    if (!isSupabaseConfigured()) {
+      setError(SUPABASE_NOT_CONFIGURED_MESSAGE);
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -52,7 +76,7 @@ export default function InviteContactScreen() {
   return (
     <View style={styles.root}>
       <View style={styles.header}>
-        <Pressable style={styles.back} onPress={() => router.back()}><ArrowRight size={20} color={Colors.neutral[200]} /></Pressable>
+        <PageNavigation tone="dark" backFallback="/conversations" />
         <View style={styles.headerText}><Text style={styles.title}>افزودن مخاطب واقعی</Text><Text style={styles.subtitle}>اتصال فقط با تأیید دوطرفه</Text></View>
       </View>
 
@@ -86,7 +110,8 @@ export default function InviteContactScreen() {
           </View>
         )}
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {configured ? null : <SupabaseSetupNotice />}
+        {error && configured ? <Text style={styles.error}>{error}</Text> : null}
         <View style={styles.security}><ShieldCheck size={19} color={Colors.success[400]} /><Text style={styles.securityText}>پیام‌ها با قوانین امنیتی Supabase فقط برای دو عضو همان گفتگو قابل مشاهده هستند.</Text></View>
       </View>
     </View>
@@ -96,7 +121,6 @@ export default function InviteContactScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.neutral[950] },
   header: { paddingTop: 52, paddingHorizontal: Spacing.lg, paddingBottom: Spacing.md, backgroundColor: Colors.neutral[900], borderBottomWidth: 1, borderBottomColor: Colors.neutral[800], flexDirection: 'row-reverse', alignItems: 'center', gap: Spacing.md },
-  back: { width: 40, height: 40, borderRadius: Radius.md, backgroundColor: Colors.neutral[850], alignItems: 'center', justifyContent: 'center' },
   headerText: { flex: 1 },
   title: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.lg, fontWeight: Typography.weights.bold, color: Colors.neutral[100], textAlign: 'right' },
   subtitle: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.xs, color: Colors.neutral[500], textAlign: 'right', marginTop: 2 },

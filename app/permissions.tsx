@@ -7,6 +7,7 @@ import { Bell, CheckCircle2, Hand, MapPin, ShieldCheck } from 'lucide-react-nati
 import { accessibilityControl } from '@/lib/accessibilityControl';
 import { setOnboardingComplete } from '@/lib/storage';
 import { Colors, Radius, Spacing, Typography } from '@/lib/theme';
+import { PageNavigation } from '@/components/PageNavigation';
 
 export default function PermissionsScreen() {
   const router = useRouter();
@@ -51,6 +52,7 @@ export default function PermissionsScreen() {
 
   return (
     <View style={styles.root}>
+      <PageNavigation tone="dark" backFallback="/languages" style={styles.pageNavigation} />
       <LinearGradient
         colors={[Colors.primary[700], Colors.accent[800]]}
         start={{ x: 0, y: 0 }}
@@ -122,6 +124,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xl,
     justifyContent: 'center',
   },
+  pageNavigation: { position: 'absolute', top: 52, right: Spacing.lg, zIndex: 10 },
   hero: { borderRadius: Radius.xl, padding: Spacing.xl, alignItems: 'center', marginBottom: Spacing.lg },
   iconWrap: {
     width: 78,

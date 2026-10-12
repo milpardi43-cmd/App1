@@ -3,7 +3,11 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Bot, ChevronLeft, MessageCircle, Mic2, Plus, QrCode, ShieldCheck, Sparkles, UserRound } from 'lucide-react-native';
 import { AppBottomNav } from '@/components/AppBottomNav';
+import { PageNavigation } from '@/components/PageNavigation';
 import { listRealContacts, type RealContact } from '@/lib/conversations';
+import { readableSupabaseError } from '@/lib/errors';
+import { isSupabaseConfigured } from '@/lib/pairing';
+import { SupabaseSetupNotice } from '@/components/SupabaseSetupNotice';
 import { Colors, Radius, Spacing, Typography } from '@/lib/theme';
 
 export default function ConversationsHome() {
@@ -12,8 +16,17 @@ export default function ConversationsHome() {
   const [loadingContacts, setLoadingContacts] = useState(true);
   const [contactsError, setContactsError] = useState<string | null>(null);
 
+  const configured = isSupabaseConfigured();
+
   useFocusEffect(
     useCallback(() => {
+      // Nothing to fetch without a real project; show the setup checklist
+      // instead of a failed request.
+      if (!configured) {
+        setLoadingContacts(false);
+        setContactsError(null);
+        return;
+      }
       let active = true;
       setLoadingContacts(true);
       listRealContacts()
@@ -23,20 +36,25 @@ export default function ConversationsHome() {
           setContactsError(null);
         })
         .catch((cause) => {
-          if (active) setContactsError(cause instanceof Error ? cause.message : 'دریافت مخاطبان انجام نشد.');
+          if (active) setContactsError(readableSupabaseError(cause));
         })
         .finally(() => {
           if (active) setLoadingContacts(false);
         });
       return () => { active = false; };
-    }, []),
+    }, [configured]),
   );
 
   return (
     <View style={styles.root}>
       <View style={styles.header}>
-        <Text style={styles.title}>مکالمه</Text>
-        <Text style={styles.subtitle}>تمرین واقعی، بدون ترس از اشتباه</Text>
+        <View style={styles.headerTop}>
+          <View style={styles.headerCopy}>
+            <Text style={styles.title}>مکالمه</Text>
+            <Text style={styles.subtitle}>تمرین واقعی، بدون ترس از اشتباه</Text>
+          </View>
+          <PageNavigation tone="dark" backFallback="/languages" />
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -66,6 +84,8 @@ export default function ConversationsHome() {
           <Text style={styles.sectionHint}>دعوت و تأیید دوطرفه</Text>
         </View>
 
+        {!configured ? <SupabaseSetupNotice /> : null}
+
         {loadingContacts ? (
           <View style={styles.loadingContacts}><ActivityIndicator color={Colors.primary[400]} /><Text style={styles.loadingText}>در حال دریافت مخاطبان…</Text></View>
         ) : contacts.length ? (
@@ -89,7 +109,7 @@ export default function ConversationsHome() {
         ) : (
           <View style={styles.emptyContacts}>
             <View style={styles.peopleIcon}><UserRound size={30} color={Colors.primary[400]} /></View>
-            <Text style={styles.emptyTitle}>هنوز مخاطبی اضافه نکرده‌اید</Text>
+            <Text style={styles.emptyTitle}>{contactsError ? 'دریافت مخاطبان انجام نشد' : 'هنوز مخاطبی اضافه نکرده‌اید'}</Text>
             <Text style={styles.emptyDesc}>{contactsError || 'دوست مسلط به انگلیسی خود را با کد دعوت اضافه کنید و در محیطی خصوصی تمرین کنید.'}</Text>
             <Pressable style={styles.inviteButton} onPress={() => router.push('/conversations/invite' as never)}>
               <Plus size={19} color={Colors.onColor} />
@@ -123,6 +143,8 @@ export default function ConversationsHome() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.neutral[950] },
   header: { paddingTop: 56, paddingBottom: Spacing.lg, paddingHorizontal: Spacing.lg, backgroundColor: Colors.neutral[900], borderBottomWidth: 1, borderBottomColor: Colors.neutral[800] },
+  headerTop: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  headerCopy: { flex: 1, alignItems: 'flex-end' },
   title: { fontFamily: Typography.fontFamily, fontSize: 26, fontWeight: Typography.weights.bold, color: Colors.neutral[0], textAlign: 'right' },
   subtitle: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.sm, color: Colors.neutral[400], textAlign: 'right', marginTop: 3 },
   content: { padding: Spacing.md, paddingBottom: 28, gap: Spacing.md },

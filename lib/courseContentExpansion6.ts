@@ -49,7 +49,7 @@ export const ADVANCED_SENTENCE_LESSONS_5: SentenceLesson[] = [
       { id: 'behavior-detest', en: 'I detest personal insults during a debate.', fa: 'از توهین شخصی هنگام بحث بیزارم.', pronunciation: 'آی دیتِست پِرسِنِل اینسالتس دیورینگ اَ دِبِیت', vocabulary: [{ word: 'detest', meaning: 'بیزار بودن', essential504: true }] },
       { id: 'behavior-sneer', en: 'Please do not sneer at other people’s ideas.', fa: 'لطفاً ایده‌های دیگران را با تمسخر رد نکنید.', pronunciation: 'پلیز دو نات اِسنیر اَت آذِر پیپِلز آیدیاز', vocabulary: [{ word: 'sneer', meaning: 'با تمسخر نگاه یا صحبت کردن', essential504: true }] },
       { id: 'behavior-scowl', en: 'He began to scowl when I disagreed.', fa: 'وقتی مخالفت کردم اخم کرد.', pronunciation: 'هی بِگَن تو اِسکَول وِن آی دیس‌اَگرید', vocabulary: [{ word: 'scowl', meaning: 'اخم کردن', essential504: true }] },
-      { id: 'behavior-calm', en: 'Let us lower our voices and continue calmly.', fa: 'بیایید صدایمان را پایین بیاوریم و آرام ادامه دهیم.', pronunciation: 'لِت آس لوئِر آور وُیسِز اَند کِنتینیو کاملی', vocabulary: [{ word: 'lower your voice', meaning: 'پایین‌آوردن صدا' }] },
+      { id: 'behavior-calm', en: 'Let us lower our voices and continue calmly.', fa: 'بیایید صدایمان را پایین بیاوریم و آرام ادامه دهیم.', pronunciation: 'لِت آس لوئِر آور وُیسِز اَند کِنتینیو کاملی', vocabulary: [{ word: 'lower our voices', meaning: 'صدایمان را پایین آوردن' }] },
       { id: 'behavior-break', en: 'We can take a short break if needed.', fa: 'در صورت نیاز می‌توانیم کمی استراحت کنیم.', pronunciation: 'وی کَن تِیک اَ شورت بریک ایف نیدِد', vocabulary: [{ word: 'break', meaning: 'وقفه / استراحت' }] },
     ],
     dialogue: [

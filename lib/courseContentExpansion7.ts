@@ -88,7 +88,7 @@ export const ADVANCED_SENTENCE_LESSONS_6: SentenceLesson[] = [
       { id: 'biography-bewildered', en: 'She was bewildered by the sudden change.', fa: 'او از تغییر ناگهانی کاملاً سردرگم شد.', pronunciation: 'شی واز بِویلْدِرد بای ذِ سادِن چِینج', vocabulary: [{ word: 'bewildered', meaning: 'کاملاً سردرگم', essential504: true }] },
       { id: 'biography-blunder', en: 'One political blunder damaged her reputation.', fa: 'یک اشتباه سیاسی به اعتبار او آسیب زد.', pronunciation: 'وان پِلیتیکِل بِلاندِر دَمِجد هِر رِپیوتِیشِن', vocabulary: [{ word: 'blunder', meaning: 'اشتباه بزرگ و شرم‌آور', essential504: true }] },
       { id: 'biography-context', en: 'We should understand the historical context.', fa: 'باید زمینه تاریخی را درک کنیم.', pronunciation: 'وی شود آندِراِستَند ذِ هیستوریکِل کانتِکست', vocabulary: [{ word: 'historical context', meaning: 'زمینه تاریخی' }] },
-      { id: 'biography-lesson', en: 'Her mistakes still offer a useful lesson.', fa: 'اشتباهات او هنوز درس مفیدی ارائه می‌دهند.', pronunciation: 'هِر میستِیکس اِستیل آفِر اَ یوسفول لِسِن', vocabulary: [{ word: 'reputation', meaning: 'اعتبار و شهرت' }] },
+      { id: 'biography-lesson', en: 'Her reputation changed after the biography was published.', fa: 'پس از انتشار زندگی‌نامه، شهرت او تغییر کرد.', pronunciation: 'هِر رِپیوتِیشِن چِینجد اَفتِر ذِ بایوگْرَفی وُز پابلیشت', vocabulary: [{ word: 'reputation', meaning: 'اعتبار و شهرت' }] },
     ],
     dialogue: [
       { speaker: 'partner', text: 'Why was she bewildered?', fa: 'چرا او سردرگم شد؟' },

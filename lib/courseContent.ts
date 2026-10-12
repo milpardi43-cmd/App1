@@ -7,6 +7,23 @@ import { ADVANCED_SENTENCE_LESSONS_5 } from './courseContentExpansion6';
 import { ADVANCED_SENTENCE_LESSONS_6 } from './courseContentExpansion7';
 import { ADVANCED_SENTENCE_LESSONS_7 } from './courseContentExpansion8';
 import { FINAL_SENTENCE_LESSONS } from './courseContentFinal';
+import { FOUNDATION_SURVIVAL_EXTENSIONS } from './courseContentFoundationSurvival';
+import { FOUNDATION_COMPLETION_SENTENCES } from './courseContentFoundationCompletion';
+import { FOUNDATION_SURVIVAL_EXPANSION_LESSONS } from './courseContentFoundationSurvivalExpansion';
+import { EVERYDAY_EXPANSION_LESSONS } from './courseContentEverydayExpansion';
+import { EVERYDAY_COMPLETION_SENTENCES } from './courseContentEverydayCompletion';
+import { SURVIVAL_COMPLETION_SENTENCES } from './courseContentSurvivalCompletion';
+import {
+  COMMUNICATION_COMPLETION_SENTENCES,
+  COMMUNICATION_COURSE_LESSON_IDS,
+} from './courseContentCommunicationCompletion';
+import { COMMUNICATION_NEW_LESSONS } from './courseContentCommunicationNewLessons';
+import {
+  COMMUNICATION_LESSON_UNIT,
+  COMMUNICATION_MODULES,
+} from './courseContentCommunicationStructure';
+
+export { COMMUNICATION_COURSE_LESSON_IDS, COMMUNICATION_LESSON_UNIT, COMMUNICATION_MODULES };
 
 export type CourseLevelId = 0 | 1 | 2 | 3 | 4;
 
@@ -28,12 +45,18 @@ export interface SentenceLesson {
   id: string;
   levelId: CourseLevelId;
   order: number;
+  /** Honest distinction between the contextual Advanced lessons and legacy vocabulary sets. */
+  contentKind?: 'scenario' | 'vocabulary-practice';
   title: string;
   subtitle: string;
   situation: string;
   durationMinutes: number;
   sentences: CourseSentence[];
   dialogue: Array<{ speaker: 'learner' | 'partner'; text: string; fa: string }>;
+  /** Thematic unit metadata is currently populated for Communication English. */
+  unitId?: string;
+  unitTitle?: string;
+  unitTitleEn?: string;
 }
 
 export interface CourseLevel {
@@ -50,9 +73,9 @@ export const COURSE_LEVELS: CourseLevel[] = [
     id: 0,
     title: 'Foundation',
     cefr: 'شروع از صفر',
-    description: 'صداها، خواندن ساده و جمله‌های ضروری',
+    description: 'صداها، الفبا و جمله‌های روزمره برای آغاز از صفر',
     color: '#6366f1',
-    modules: ['تلفظ و صداها', 'خواندن پایه', '۱۰۰ جمله ضروری', 'عبارت‌های فوری'],
+    modules: ['معرفی و صداهای پایه', 'درخواست کمک', 'خرید و قیمت‌ها', 'الفبا و هجی‌کردن', 'ضمیرها و فعل be', 'عددها و اطلاعات تماس', 'خانواده و مالکیت', 'زمان و تقویم', 'کارهای روزمره', 'وسایل و مکان‌ها'],
   },
   {
     id: 1,
@@ -76,15 +99,15 @@ export const COURSE_LEVELS: CourseLevel[] = [
     cefr: 'B1–B2',
     description: 'روانی در گفتگو، نظر دادن و داستان‌گویی',
     color: '#f59e0b',
-    modules: ['بحث و نظر', 'داستان‌گویی', 'ارتباط حرفه‌ای'],
+    modules: COMMUNICATION_MODULES.map(unit => unit.titleFa),
   },
   {
     id: 4,
     title: 'Advanced English',
-    cefr: 'B2–C1',
-    description: 'انگلیسی دانشگاهی، کاری و پیشرفته',
+    cefr: 'سطح ۴ · داخلی',
+    description: 'سناریوهای حرفه‌ای، اجتماعی و علمی؛ همراه با مرور واژگان پیشرفته',
     color: '#8b5cf6',
-    modules: ['انگلیسی دانشگاهی', 'کسب‌وکار', 'IELTS و گفتار حرفه‌ای'],
+    modules: ['کار و تصمیم‌گیری', 'رسانه و جامعه', 'علم و محیط زیست', 'سفر و ایمنی', 'رشد فردی و ارتباط', 'مرور واژگان در بافت'],
   },
 ];
 
@@ -282,8 +305,30 @@ const CORE_SENTENCE_LESSONS: SentenceLesson[] = [
   },
 ];
 
-export const SENTENCE_LESSONS: SentenceLesson[] = [
-  ...CORE_SENTENCE_LESSONS,
+const ENRICHED_CORE_SENTENCE_LESSONS: SentenceLesson[] = CORE_SENTENCE_LESSONS.map((lesson) => {
+  const extension = FOUNDATION_SURVIVAL_EXTENSIONS[lesson.id];
+  const completionSentences = FOUNDATION_COMPLETION_SENTENCES[lesson.id] ?? [];
+  if (!extension && completionSentences.length === 0) return lesson;
+
+  return {
+    ...lesson,
+    durationMinutes: extension?.durationMinutes ?? lesson.durationMinutes,
+    sentences: [
+      ...lesson.sentences.map((sentence) => {
+        const pattern = extension?.patterns[sentence.id];
+        return sentence.pattern || !pattern ? sentence : { ...sentence, pattern };
+      }),
+      ...(extension?.sentences ?? []),
+      ...completionSentences,
+    ],
+    dialogue: extension ? [...lesson.dialogue, ...extension.dialogue] : lesson.dialogue,
+  };
+});
+
+const COMMUNICATION_ORDER_INSERTION_COUNT = COMMUNICATION_NEW_LESSONS.length;
+
+const ORIGINAL_SENTENCE_LESSONS: SentenceLesson[] = [
+  ...ENRICHED_CORE_SENTENCE_LESSONS,
   ...EXPANDED_SENTENCE_LESSONS,
   ...ADVANCED_SENTENCE_LESSONS,
   ...ADVANCED_SENTENCE_LESSONS_2,
@@ -293,6 +338,262 @@ export const SENTENCE_LESSONS: SentenceLesson[] = [
   ...ADVANCED_SENTENCE_LESSONS_6,
   ...ADVANCED_SENTENCE_LESSONS_7,
   ...FINAL_SENTENCE_LESSONS,
+].map(lesson => {
+  if (lesson.levelId !== 4) return lesson;
+  const contentKind: NonNullable<SentenceLesson['contentKind']> = lesson.id.startsWith('advanced-canonical-practice-')
+    ? 'vocabulary-practice'
+    : 'scenario';
+  return {
+    ...lesson,
+    contentKind,
+    order: lesson.order + COMMUNICATION_ORDER_INSERTION_COUNT,
+  };
+})
+  .concat(COMMUNICATION_NEW_LESSONS)
+  .sort((a, b) => a.order - b.order);
+
+/**
+ * Foundation remains a ten-lesson, sentence-first course. The seven curated
+ * additions follow its original IDs; 17 selected Survival lessons follow the
+ * original Survival pair. A separate completion source brings every one of the
+ * 19 stable Survival lesson records to exactly fifty linked sentence examples.
+ */
+export const FOUNDATION_EXPANSION_LESSON_IDS = [
+  'foundation-alphabet-and-spelling',
+  'foundation-pronouns-and-be',
+  'foundation-numbers-and-contact',
+  'foundation-family-and-possessions',
+  'foundation-time-and-calendar',
+  'foundation-everyday-routine',
+  'foundation-objects-and-places',
+] as const;
+
+const foundationExpansionIds = new Set<string>(FOUNDATION_EXPANSION_LESSON_IDS);
+const selectedFoundationLessons = FOUNDATION_SURVIVAL_EXPANSION_LESSONS
+  .filter(lesson => foundationExpansionIds.has(lesson.id));
+if (selectedFoundationLessons.length !== FOUNDATION_EXPANSION_LESSON_IDS.length) {
+  throw new Error('A selected Foundation lesson is missing from its source.');
+}
+
+const FOUNDATION_EXPANSION_INSERTION_ORDER = 3;
+const FOUNDATION_EXPANSION_LESSONS = selectedFoundationLessons.map((lesson, index) => {
+  const completionSentences = FOUNDATION_COMPLETION_SENTENCES[lesson.id] ?? [];
+  if (lesson.sentences.length !== 10 || completionSentences.length !== 40) {
+    throw new Error(`Foundation lesson ${lesson.id} must have ten prepared and forty completion sentences.`);
+  }
+  return {
+    ...lesson,
+    order: FOUNDATION_EXPANSION_INSERTION_ORDER + index + 1,
+    durationMinutes: 30,
+    sentences: [...lesson.sentences, ...completionSentences],
+  };
+});
+
+const LESSONS_WITH_FOUNDATION_EXPANSION: SentenceLesson[] = [
+  ...ORIGINAL_SENTENCE_LESSONS.map(lesson => lesson.order > FOUNDATION_EXPANSION_INSERTION_ORDER
+    ? { ...lesson, order: lesson.order + FOUNDATION_EXPANSION_LESSONS.length }
+    : lesson),
+  ...FOUNDATION_EXPANSION_LESSONS,
 ].sort((a, b) => a.order - b.order);
+
+export const SURVIVAL_EXPANSION_LESSON_IDS = [
+  'survival-personal-information',
+  'survival-directions-and-neighborhood',
+  'survival-public-transport',
+  'survival-cafe-and-food',
+  'survival-shopping-and-clothing',
+  'survival-appointments-and-time',
+  'survival-health-and-pharmacy',
+  'survival-hobbies-and-free-time',
+  'survival-invitations-and-plans',
+  'survival-weather-and-seasons',
+  'survival-travel-and-tickets',
+  'survival-hotel-and-stay',
+  'survival-phone-and-messages',
+  'survival-services-and-post-office',
+  'survival-school-and-learning',
+  'survival-current-activities',
+  'survival-past-and-future-plans',
+] as const;
+
+/** Stable lesson order for the fully developed A1/Survival block. */
+export const SURVIVAL_COURSE_LESSON_IDS = [
+  'survival-job-interview',
+  'survival-renting-a-home',
+  ...SURVIVAL_EXPANSION_LESSON_IDS,
+] as const;
+
+const survivalExpansionIds = new Set<string>(SURVIVAL_EXPANSION_LESSON_IDS);
+const selectedSurvivalLessons = FOUNDATION_SURVIVAL_EXPANSION_LESSONS
+  .filter(lesson => survivalExpansionIds.has(lesson.id));
+if (selectedSurvivalLessons.length !== SURVIVAL_EXPANSION_LESSON_IDS.length) {
+  throw new Error('A selected Survival expansion lesson is missing from its source.');
+}
+
+const SURVIVAL_EXPANSION_INSERTION_ORDER = 12;
+const SURVIVAL_EXPANSION_LESSONS = selectedSurvivalLessons.map((lesson, index) => ({
+  ...lesson,
+  order: SURVIVAL_EXPANSION_INSERTION_ORDER + index + 1,
+  durationMinutes: 20,
+}));
+
+const LESSONS_WITH_SURVIVAL_EXPANSION: SentenceLesson[] = [
+  ...LESSONS_WITH_FOUNDATION_EXPANSION.map(lesson => lesson.order > SURVIVAL_EXPANSION_INSERTION_ORDER
+    ? { ...lesson, order: lesson.order + SURVIVAL_EXPANSION_LESSONS.length }
+    : lesson),
+  ...SURVIVAL_EXPANSION_LESSONS,
+].sort((a, b) => a.order - b.order);
+
+/** Fifteen new A2–B1 Everyday English lessons follow the five previously published lessons. */
+export const EVERYDAY_EXPANSION_LESSON_IDS = [
+  'everyday-managing-a-busy-day',
+  'everyday-keeping-in-touch',
+  'everyday-sharing-an-experience',
+  'everyday-comparing-choices',
+  'everyday-cooking-at-home',
+  'everyday-shopping-returns',
+  'everyday-money-and-budget',
+  'everyday-teamwork-at-work',
+  'everyday-study-and-projects',
+  'everyday-healthy-habits',
+  'everyday-travel-changes',
+  'everyday-email-and-messages',
+  'everyday-sharing-a-home',
+  'everyday-making-a-complaint',
+  'everyday-sharing-opinions',
+] as const;
+
+/** Stable sequence of all twenty published Everyday English lessons. */
+export const EVERYDAY_COURSE_LESSON_IDS = [
+  'everyday-facing-a-challenge',
+  'everyday-making-a-plan',
+  'everyday-handling-a-misunderstanding',
+  'everyday-talking-about-weather',
+  'everyday-handling-an-emergency',
+  ...EVERYDAY_EXPANSION_LESSON_IDS,
+] as const;
+
+const everydayExpansionIds = new Set<string>(EVERYDAY_EXPANSION_LESSON_IDS);
+const selectedEverydayLessons = EVERYDAY_EXPANSION_LESSONS
+  .filter(lesson => everydayExpansionIds.has(lesson.id));
+if (selectedEverydayLessons.length !== EVERYDAY_EXPANSION_LESSON_IDS.length) {
+  throw new Error('A selected Everyday English expansion lesson is missing from its source.');
+}
+
+const EVERYDAY_EXPANSION_INSERTION_ORDER = 34;
+const EVERYDAY_EXPANSION_INSERTION_LESSONS = selectedEverydayLessons.map((lesson, index) => ({
+  ...lesson,
+  order: EVERYDAY_EXPANSION_INSERTION_ORDER + index + 1,
+  durationMinutes: 20,
+}));
+
+const COURSE_LESSONS_BEFORE_SURVIVAL_COMPLETION: SentenceLesson[] = [
+  ...LESSONS_WITH_SURVIVAL_EXPANSION.map(lesson => lesson.order > EVERYDAY_EXPANSION_INSERTION_ORDER
+    ? { ...lesson, order: lesson.order + EVERYDAY_EXPANSION_INSERTION_LESSONS.length }
+    : lesson),
+  ...EVERYDAY_EXPANSION_INSERTION_LESSONS,
+].sort((a, b) => a.order - b.order);
+
+const survivalLessonIds = new Set<string>(SURVIVAL_COURSE_LESSON_IDS);
+const survivalLessonsBeforeCompletion = COURSE_LESSONS_BEFORE_SURVIVAL_COMPLETION.filter(lesson => lesson.levelId === 1);
+const survivalCompletionIds = Object.keys(SURVIVAL_COMPLETION_SENTENCES);
+if (survivalLessonsBeforeCompletion.map(lesson => lesson.id).join('|') !== SURVIVAL_COURSE_LESSON_IDS.join('|')
+  || survivalCompletionIds.length !== SURVIVAL_COURSE_LESSON_IDS.length
+  || survivalCompletionIds.some(id => !survivalLessonIds.has(id))) {
+  throw new Error('The Survival completion data must match the stable 19-lesson A1 course order.');
+}
+
+const communicationLessonsBeforeCompletion = COURSE_LESSONS_BEFORE_SURVIVAL_COMPLETION.filter(lesson => lesson.levelId === 3);
+const communicationCompletionIds = Object.keys(COMMUNICATION_COMPLETION_SENTENCES);
+if (communicationLessonsBeforeCompletion.map(lesson => lesson.id).join('|') !== COMMUNICATION_COURSE_LESSON_IDS.join('|')
+  || communicationCompletionIds.length !== COMMUNICATION_COURSE_LESSON_IDS.length
+  || communicationCompletionIds.some(id => !COMMUNICATION_COURSE_LESSON_IDS.includes(id as typeof COMMUNICATION_COURSE_LESSON_IDS[number]))) {
+  throw new Error('The Communication completion data must match the stable fifteen-lesson course order.');
+}
+
+const everydayLessonsBeforeCompletion = COURSE_LESSONS_BEFORE_SURVIVAL_COMPLETION.filter(lesson => lesson.levelId === 2);
+const everydayCompletionIds = Object.keys(EVERYDAY_COMPLETION_SENTENCES);
+if (everydayLessonsBeforeCompletion.map(lesson => lesson.id).join('|') !== EVERYDAY_COURSE_LESSON_IDS.join('|')
+  || everydayCompletionIds.length !== EVERYDAY_COURSE_LESSON_IDS.length
+  || everydayCompletionIds.some(id => !EVERYDAY_COURSE_LESSON_IDS.includes(id as typeof EVERYDAY_COURSE_LESSON_IDS[number]))) {
+  throw new Error('The Everyday completion data must match the stable 20-lesson course order.');
+}
+const originalEverydayLessonIds = new Set<string>(EVERYDAY_COURSE_LESSON_IDS.slice(0, 5));
+
+export const SENTENCE_LESSONS: SentenceLesson[] = COURSE_LESSONS_BEFORE_SURVIVAL_COMPLETION.map(lesson => {
+  if (lesson.levelId === 3) {
+    const additions = COMMUNICATION_COMPLETION_SENTENCES[lesson.id as keyof typeof COMMUNICATION_COMPLETION_SENTENCES];
+    if (!additions || lesson.sentences.length !== 6 || additions.length !== 44) {
+      throw new Error(`Communication lesson ${lesson.id} must preserve its six prepared examples and add forty-four.`);
+    }
+    if (additions.some(sentence => !sentence.en || !sentence.fa || !sentence.pronunciation
+      || !sentence.pattern || sentence.vocabulary.length < 2
+      || sentence.vocabulary.some(({ word, meaning }) => !word || !meaning || !sentence.en.toLowerCase().includes(word.toLowerCase())))) {
+      throw new Error(`Communication completion sentences for ${lesson.id} must include translations, pronunciation, patterns, and sentence-linked vocabulary.`);
+    }
+
+    const sentences = [...lesson.sentences, ...additions];
+    const normalizedExamples = sentences.map(sentence => sentence.en.trim().toLowerCase()
+      .replace(/[.!?]+$/g, '').replace(/[’']/g, "'").replace(/\s+/g, ' '));
+    if (sentences.length !== 50
+      || new Set(sentences.map(sentence => sentence.id)).size !== 50
+      || new Set(normalizedExamples).size !== 50) {
+      throw new Error(`Communication lesson ${lesson.id} must have fifty unique sentence IDs and examples.`);
+    }
+
+    const unit = COMMUNICATION_LESSON_UNIT[lesson.id];
+    if (!unit) throw new Error(`Communication lesson ${lesson.id} is missing its thematic unit.`);
+    return {
+      ...lesson,
+      durationMinutes: 35,
+      unitId: unit.unitId,
+      unitTitle: unit.unitTitleFa,
+      unitTitleEn: unit.unitTitleEn,
+      sentences,
+    };
+  }
+
+  if (lesson.levelId === 2) {
+    const additions = EVERYDAY_COMPLETION_SENTENCES[lesson.id as keyof typeof EVERYDAY_COMPLETION_SENTENCES];
+    const expectedBaseCount = originalEverydayLessonIds.has(lesson.id) ? 6 : 10;
+    if (!additions || lesson.sentences.length !== expectedBaseCount || additions.length !== 50 - expectedBaseCount) {
+      throw new Error(`Everyday lesson ${lesson.id} must preserve its prepared examples and add enough to reach fifty.`);
+    }
+    if (additions.some(sentence => !sentence.en || !sentence.fa || !sentence.pronunciation
+      || !sentence.pattern || sentence.vocabulary.length < 2
+      || sentence.vocabulary.some(({ word, meaning }) => !word || !meaning || !sentence.en.toLowerCase().includes(word.toLowerCase())))) {
+      throw new Error(`Everyday completion sentences for ${lesson.id} must include translations, pronunciation, patterns, and sentence-linked vocabulary.`);
+    }
+
+    const sentences = [...lesson.sentences, ...additions];
+    const normalizedExamples = sentences.map(sentence => sentence.en.trim().toLowerCase()
+      .replace(/[.!?]+$/g, '').replace(/[’']/g, "'").replace(/\s+/g, ' '));
+    if (new Set(sentences.map(sentence => sentence.id)).size !== 50
+      || new Set(normalizedExamples).size !== 50) {
+      throw new Error(`Everyday lesson ${lesson.id} must have fifty unique sentence IDs and examples.`);
+    }
+
+    return { ...lesson, durationMinutes: 35, sentences };
+  }
+
+  if (lesson.levelId !== 1) return lesson;
+
+  const additions = SURVIVAL_COMPLETION_SENTENCES[lesson.id];
+  if (!additions || lesson.sentences.length + additions.length !== 50) {
+    throw new Error(`Survival lesson ${lesson.id} must contain exactly fifty sentence examples.`);
+  }
+  if (additions.some(sentence => !sentence.en || !sentence.fa || !sentence.pronunciation
+    || !sentence.pattern || sentence.vocabulary.length === 0)) {
+    throw new Error(`Survival completion sentences for ${lesson.id} must include translation, pronunciation, pattern, and linked vocabulary.`);
+  }
+
+  const sentences = [...lesson.sentences, ...additions];
+  if (new Set(sentences.map(sentence => sentence.id)).size !== 50
+    || new Set(sentences.map(sentence => sentence.en.trim().toLowerCase())).size !== 50) {
+    throw new Error(`Survival lesson ${lesson.id} must have fifty unique sentence IDs and examples.`);
+  }
+
+  return { ...lesson, durationMinutes: 35, sentences };
+});
 
 export const getSentenceLesson = (id: string) => SENTENCE_LESSONS.find((lesson) => lesson.id === id);

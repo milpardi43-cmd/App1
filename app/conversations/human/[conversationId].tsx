@@ -10,7 +10,7 @@ import {
   useAudioRecorder,
   useAudioRecorderState,
 } from 'expo-audio';
-import { ArrowRight, Check, Languages, Lightbulb, Mic, MicOff, Pause, Phone, PhoneOff, Play, Send, ShieldCheck, Sparkles, Square, UserRound } from 'lucide-react-native';
+import { Check, Languages, Lightbulb, Mic, MicOff, Pause, Phone, PhoneOff, Play, Send, ShieldCheck, Sparkles, Square, UserRound } from 'lucide-react-native';
 import {
   currentChatUserId,
   getVoiceMessageUrl,
@@ -24,6 +24,8 @@ import {
 import { requestHumanChatAssist, type HumanAssistMode, type HumanAssistResult } from '@/lib/humanChatAssist';
 import { useVoiceCall } from '@/lib/voiceCall';
 import { Colors, Radius, Spacing, Typography } from '@/lib/theme';
+import { PageNavigation } from '@/components/PageNavigation';
+import { ONLINE_AUDIO_DISABLED_MESSAGE, ONLINE_AUDIO_ENABLED } from '@/lib/onlineAudioPolicy';
 
 function VoiceMessage({ message }: { message: DirectMessage }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -49,7 +51,7 @@ function VoiceMessage({ message }: { message: DirectMessage }) {
   };
 
   return (
-    <Pressable style={styles.voiceMessage} onPress={() => void toggle()}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`پخش پیام صوتی، ${message.body || '۱'} ثانیه`} style={styles.voiceMessage} onPress={() => void toggle()}>
       <View style={styles.voicePlay}>
         {!url && !error ? <Play size={16} color={Colors.neutral[50]} fill={Colors.neutral[50]} /> : status.playing ? <Pause size={16} color={Colors.neutral[50]} fill={Colors.neutral[50]} /> : <Play size={16} color={Colors.neutral[50]} fill={Colors.neutral[50]} />}
       </View>
@@ -140,6 +142,7 @@ export default function HumanConversationScreen() {
   };
 
   const startRecording = async () => {
+    if (!ONLINE_AUDIO_ENABLED) { setError(ONLINE_AUDIO_DISABLED_MESSAGE); return; }
     if (sending || recorderState.isRecording) return;
     try {
       setError(null);
@@ -154,6 +157,7 @@ export default function HumanConversationScreen() {
   };
 
   const stopAndSendRecording = async () => {
+    if (!ONLINE_AUDIO_ENABLED) { setError(ONLINE_AUDIO_DISABLED_MESSAGE); return; }
     if (!recorderState.isRecording || sending) return;
     const duration = Math.max(1, Math.round(recorderState.durationMillis / 1000));
     setSending(true);
@@ -173,10 +177,10 @@ export default function HumanConversationScreen() {
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.header}>
-        <Pressable style={styles.back} onPress={() => router.back()}><ArrowRight size={20} color={Colors.neutral[200]} /></Pressable>
+        <PageNavigation tone="dark" backFallback="/conversations" />
         <View style={styles.avatar}><UserRound size={22} color={Colors.primary[300]} /></View>
         <View style={styles.headerText}><Text style={styles.name}>{name || 'مخاطب واقعی'}</Text><Text style={styles.status}>{call.phase === 'connected' ? 'تماس امن برقرار است' : 'گفتگوی خصوصی'}</Text></View>
-        <Pressable style={styles.callButton} disabled={call.phase !== 'idle'} onPress={() => void call.startCall()}><Phone size={19} color={call.phase === 'idle' ? Colors.success[300] : Colors.neutral[600]} /></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={ONLINE_AUDIO_ENABLED ? 'شروع تماس صوتی' : 'تماس صوتی فعلاً غیرفعال است'} accessibilityHint={!ONLINE_AUDIO_ENABLED ? ONLINE_AUDIO_DISABLED_MESSAGE : undefined} accessibilityState={{ disabled: !ONLINE_AUDIO_ENABLED || call.phase !== 'idle' }} style={[styles.callButton, !ONLINE_AUDIO_ENABLED && styles.disabled]} disabled={!ONLINE_AUDIO_ENABLED || call.phase !== 'idle'} onPress={() => void call.startCall()}><Phone size={19} color={call.phase === 'idle' && ONLINE_AUDIO_ENABLED ? Colors.success[300] : Colors.neutral[600]} /></Pressable>
         <ShieldCheck size={20} color={Colors.success[400]} />
       </View>
 
@@ -186,9 +190,9 @@ export default function HumanConversationScreen() {
             <Text style={styles.callTitle}>{call.phase === 'incoming' ? `تماس ورودی از ${call.incomingCallerName || name || 'مخاطب'}` : call.phase === 'outgoing' ? 'در حال تماس…' : call.phase === 'connected' ? 'تماس صوتی برقرار است' : call.phase === 'error' ? 'تماس برقرار نشد' : 'در حال اتصال تماس…'}</Text>
             <Text style={styles.callHint}>{call.phase === 'connected' ? 'صدا به‌صورت زنده و خصوصی منتقل می‌شود.' : 'برای تماس اینترنتی پایدار، TURN باید تنظیم باشد.'}</Text>
           </View>
-          {call.phase === 'incoming' ? <Pressable style={styles.acceptCall} onPress={() => void call.acceptCall()}><Phone size={18} color={Colors.onColor} /></Pressable> : null}
-          {call.phase === 'connected' ? <Pressable style={styles.muteCall} onPress={call.toggleMute}>{call.muted ? <MicOff size={18} color={Colors.warning[300]} /> : <Mic size={18} color={Colors.neutral[100]} />}</Pressable> : null}
-          <Pressable style={styles.endCall} onPress={() => void (call.phase === 'incoming' ? call.declineCall() : call.hangUp())}><PhoneOff size={18} color={Colors.onColor} /></Pressable>
+          {call.phase === 'incoming' ? <Pressable accessibilityRole="button" accessibilityLabel="پذیرفتن تماس صوتی" accessibilityState={{ disabled: !ONLINE_AUDIO_ENABLED }} disabled={!ONLINE_AUDIO_ENABLED} style={[styles.acceptCall, !ONLINE_AUDIO_ENABLED && styles.disabled]} onPress={() => void call.acceptCall()}><Phone size={18} color={Colors.onColor} /></Pressable> : null}
+          {call.phase === 'connected' ? <Pressable accessibilityRole="button" accessibilityLabel={call.muted ? 'روشن‌کردن میکروفن تماس' : 'خاموش‌کردن میکروفن تماس'} style={styles.muteCall} onPress={call.toggleMute}>{call.muted ? <MicOff size={18} color={Colors.warning[300]} /> : <Mic size={18} color={Colors.neutral[100]} />}</Pressable> : null}
+          <Pressable accessibilityRole="button" accessibilityLabel={call.phase === 'incoming' ? 'رد تماس' : 'پایان تماس'} style={styles.endCall} onPress={() => void (call.phase === 'incoming' ? call.declineCall() : call.hangUp())}><PhoneOff size={18} color={Colors.onColor} /></Pressable>
         </View>
       ) : null}
       {call.error ? <Text style={styles.callError}>{call.error}</Text> : null}
@@ -216,30 +220,31 @@ export default function HumanConversationScreen() {
         <View style={styles.coach}>
           <View style={styles.coachTitleRow}><Sparkles size={15} color={Colors.warning[400]} /><Text style={styles.coachTitle}>دستیار خصوصی — چیزی خودکار ارسال نمی‌شود</Text></View>
           <View style={styles.coachActions}>
-            <Pressable style={styles.coachAction} disabled={!!assisting} onPress={() => void runAssist('translate')}><Languages size={14} color={Colors.warning[300]} /><Text style={styles.coachActionText}>ترجمه</Text></Pressable>
-            <Pressable style={styles.coachAction} disabled={!!assisting} onPress={() => void runAssist('correct')}><Check size={14} color={Colors.success[300]} /><Text style={styles.coachActionText}>اصلاح</Text></Pressable>
-            <Pressable style={styles.coachAction} disabled={!!assisting} onPress={() => void runAssist('suggest')}><Lightbulb size={14} color={Colors.primary[300]} /><Text style={styles.coachActionText}>پیشنهاد پاسخ</Text></Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="ترجمهٔ پیش‌نویس پیام" accessibilityState={{ disabled: !!assisting }} style={styles.coachAction} disabled={!!assisting} onPress={() => void runAssist('translate')}><Languages size={14} color={Colors.warning[300]} /><Text style={styles.coachActionText}>ترجمه</Text></Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="اصلاح پیش‌نویس پیام" accessibilityState={{ disabled: !!assisting }} style={styles.coachAction} disabled={!!assisting} onPress={() => void runAssist('correct')}><Check size={14} color={Colors.success[300]} /><Text style={styles.coachActionText}>اصلاح</Text></Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="پیشنهاد پاسخ" accessibilityState={{ disabled: !!assisting }} style={styles.coachAction} disabled={!!assisting} onPress={() => void runAssist('suggest')}><Lightbulb size={14} color={Colors.primary[300]} /><Text style={styles.coachActionText}>پیشنهاد پاسخ</Text></Pressable>
           </View>
           {assisting ? <ActivityIndicator size="small" color={Colors.warning[400]} /> : null}
           {assistResult ? (
             <View style={styles.assistResult}>
               <Text style={styles.assistPrimary}>{assistResult.primary}</Text>
               {assistResult.explanationFa ? <Text style={styles.assistExplanation}>{assistResult.explanationFa}</Text> : null}
-              <Pressable style={styles.useSuggestion} onPress={() => { setInput(assistResult.primary); setAssistResult(null); }}><Text style={styles.useSuggestionText}>قرار دادن در کادر پیام</Text></Pressable>
-              {assistResult.alternatives.map((item) => <Pressable key={item} onPress={() => { setInput(item); setAssistResult(null); }}><Text style={styles.alternative}>{item}</Text></Pressable>)}
+              <Pressable accessibilityRole="button" accessibilityLabel="قرار دادن پیشنهاد در کادر پیام" style={styles.useSuggestion} onPress={() => { setInput(assistResult.primary); setAssistResult(null); }}><Text style={styles.useSuggestionText}>قرار دادن در کادر پیام</Text></Pressable>
+              {assistResult.alternatives.map((item) => <Pressable key={item} accessibilityRole="button" accessibilityLabel={`استفاده از پیشنهاد: ${item}`} onPress={() => { setInput(item); setAssistResult(null); }}><Text style={styles.alternative}>{item}</Text></Pressable>)}
             </View>
           ) : null}
         </View>
       ) : null}
       {recorderState.isRecording ? <View style={styles.recording}><View style={styles.recordDot} /><Text style={styles.recordingText}>در حال ضبط · {Math.max(1, Math.round(recorderState.durationMillis / 1000))} ثانیه · برای ارسال دوباره بزنید</Text></View> : null}
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {!ONLINE_AUDIO_ENABLED ? <View style={styles.audioNotice}><ShieldCheck size={14} color={Colors.success[300]} /><Text style={styles.audioNoticeText}>{ONLINE_AUDIO_DISABLED_MESSAGE} پخش پیام‌های دریافتی همچنان در دسترس است.</Text></View> : null}
+      {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
       <View style={styles.composer}>
-        <Pressable style={styles.helper} onPress={() => setShowCoach((value) => !value)}><Sparkles size={19} color={showCoach ? Colors.warning[400] : Colors.neutral[400]} /></Pressable>
-        <TextInput style={styles.input} value={input} onChangeText={setInput} placeholder="پیام فارسی یا انگلیسی بنویسید…" placeholderTextColor={Colors.neutral[600]} multiline textAlign="right" />
+        <Pressable accessibilityRole="button" accessibilityLabel="باز و بسته‌کردن دستیار زبان" accessibilityState={{ expanded: showCoach }} style={styles.helper} onPress={() => setShowCoach((value) => !value)}><Sparkles size={19} color={showCoach ? Colors.warning[400] : Colors.neutral[400]} /></Pressable>
+        <TextInput accessibilityLabel="متن پیام فارسی یا انگلیسی" style={styles.input} value={input} onChangeText={setInput} placeholder="پیام فارسی یا انگلیسی بنویسید…" placeholderTextColor={Colors.neutral[600]} multiline textAlign="right" />
         {input.trim() ? (
-          <Pressable style={[styles.send, sending && styles.disabled]} disabled={sending} onPress={() => void send()}>{sending ? <ActivityIndicator size="small" color={Colors.onColor} /> : <Send size={18} color={Colors.onColor} />}</Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="ارسال پیام متنی" accessibilityState={{ disabled: sending }} style={[styles.send, sending && styles.disabled]} disabled={sending} onPress={() => void send()}>{sending ? <ActivityIndicator size="small" color={Colors.onColor} /> : <Send size={18} color={Colors.onColor} />}</Pressable>
         ) : (
-          <Pressable style={[styles.send, recorderState.isRecording && styles.recordStop, sending && styles.disabled]} disabled={sending} onPress={() => recorderState.isRecording ? void stopAndSendRecording() : void startRecording()}>
+          <Pressable accessibilityRole="button" accessibilityLabel={ONLINE_AUDIO_ENABLED ? 'شروع یا پایان ضبط پیام صوتی' : 'ضبط و ارسال پیام صوتی فعلاً غیرفعال است'} accessibilityHint={!ONLINE_AUDIO_ENABLED ? ONLINE_AUDIO_DISABLED_MESSAGE : undefined} accessibilityState={{ disabled: !ONLINE_AUDIO_ENABLED || sending }} style={[styles.send, recorderState.isRecording && styles.recordStop, (sending || !ONLINE_AUDIO_ENABLED) && styles.disabled]} disabled={sending || !ONLINE_AUDIO_ENABLED} onPress={() => recorderState.isRecording ? void stopAndSendRecording() : void startRecording()}>
             {sending ? <ActivityIndicator size="small" color={Colors.onColor} /> : recorderState.isRecording ? <Square size={16} color={Colors.onColor} fill={Colors.onColor} /> : <Mic size={19} color={Colors.onColor} />}
           </Pressable>
         )}
@@ -251,7 +256,6 @@ export default function HumanConversationScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.neutral[950] },
   header: { paddingTop: 50, paddingHorizontal: Spacing.md, paddingBottom: Spacing.sm, minHeight: 104, backgroundColor: Colors.neutral[900], borderBottomWidth: 1, borderBottomColor: Colors.neutral[800], flexDirection: 'row-reverse', alignItems: 'center', gap: Spacing.sm },
-  back: { width: 39, height: 39, borderRadius: Radius.md, backgroundColor: Colors.neutral[850], alignItems: 'center', justifyContent: 'center' },
   avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: Colors.primary[500] + '15', alignItems: 'center', justifyContent: 'center' },
   headerText: { flex: 1 },
   name: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, color: Colors.neutral[100], textAlign: 'right' },
@@ -300,6 +304,8 @@ const styles = StyleSheet.create({
   recording: { minHeight: 34, backgroundColor: Colors.error[500] + '12', flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 7 },
   recordDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.error[400] },
   recordingText: { fontFamily: Typography.fontFamily, fontSize: 10, color: Colors.error[300] },
+  audioNotice: { minHeight: 34, paddingHorizontal: Spacing.md, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 7, backgroundColor: Colors.success[500] + '0D' },
+  audioNoticeText: { flexShrink: 1, fontFamily: Typography.fontFamily, fontSize: 9, lineHeight: 16, color: Colors.success[300], textAlign: 'right' },
   error: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.xs, color: Colors.error[300], textAlign: 'center', paddingHorizontal: Spacing.md, paddingTop: 6, backgroundColor: Colors.neutral[900] },
   composer: { padding: Spacing.sm, paddingBottom: 18, backgroundColor: Colors.neutral[900], flexDirection: 'row-reverse', alignItems: 'flex-end', gap: 7 },
   helper: { width: 42, height: 42, borderRadius: 21, backgroundColor: Colors.neutral[850], alignItems: 'center', justifyContent: 'center' },

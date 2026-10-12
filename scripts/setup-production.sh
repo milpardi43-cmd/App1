@@ -31,3 +31,7 @@ done
 
 echo "Production backend setup finished. TURN provider secrets can be added later with:"
 echo "npx supabase secrets set METERED_DOMAIN=YOUR_DOMAIN METERED_SECRET_KEY=YOUR_SECRET"
+echo
+echo "Remaining manual step (dashboard only, cannot be done from SQL):"
+echo "  Supabase > Authentication > Providers > Anonymous Sign-Ins = ON"
+echo "Without it the app cannot create an identity, so invite codes and chat stay disabled."

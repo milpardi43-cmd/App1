@@ -11,7 +11,7 @@ export const ADVANCED_SENTENCE_LESSONS_7: SentenceLesson[] = [
       { id: 'court-corpse', en: 'The report confirmed that no corpse was found at the scene.', fa: 'گزارش تأیید کرد که هیچ جسدی در محل پیدا نشد.', pronunciation: 'ذِ ریپورت کِنفِرمد ذَت نو کورپس واز فَوند اَت ذِ سین', vocabulary: [{ word: 'corpse', meaning: 'جسد', essential504: true }] },
       { id: 'court-undeniable', en: 'The bank record provides undeniable evidence.', fa: 'سابقه بانکی مدرکی انکارناپذیر ارائه می‌دهد.', pronunciation: 'ذِ بَنک رِکورد پرووایدز آندِنایِبِل اِویدِنس', vocabulary: [{ word: 'undeniable', meaning: 'انکارناپذیر', essential504: true }] },
       { id: 'court-defraud', en: 'The suspect tried to defraud several customers.', fa: 'مظنون تلاش کرد چند مشتری را فریب مالی دهد.', pronunciation: 'ذِ ساسپِکت تِراید تو دیفْراد سِوِرِل کاستِمِرز', vocabulary: [{ word: 'defraud', meaning: 'کلاهبرداری کردن', essential504: true }] },
-      { id: 'court-answer', en: 'Answer only the question you are asked.', fa: 'فقط به سؤالی که از شما پرسیده می‌شود پاسخ دهید.', pronunciation: 'اَنسِر اونلی ذِ کوئسچِن یو آر اَسکت', vocabulary: [{ word: 'witness', meaning: 'شاهد' }] },
+      { id: 'court-answer', en: 'As a witness, answer only the question you are asked.', fa: 'به‌عنوان شاهد، فقط به پرسشی پاسخ دهید که از شما می‌پرسند.', pronunciation: 'اَز اَ ویتنِس، اَنسِر اونلی ذِ کوئسچِن یو آر اَسکت', vocabulary: [{ word: 'witness', meaning: 'شاهد' }] },
       { id: 'court-record', en: 'The judge examined the original records.', fa: 'قاضی مدارک اصلی را بررسی کرد.', pronunciation: 'ذِ جاج اِگْزَمِند ذی اریجِنِل رِکوردز', vocabulary: [{ word: 'record', meaning: 'سابقه / مدرک' }] },
     ],
     dialogue: [
@@ -69,7 +69,7 @@ export const ADVANCED_SENTENCE_LESSONS_7: SentenceLesson[] = [
       { id: 'wholesale-underestimate', en: 'Do not underestimate the cost of storage.', fa: 'هزینه انبارداری را دست‌کم نگیرید.', pronunciation: 'دو نات آندِر اِستِمِیت ذِ کاست آو اِستورِج', vocabulary: [{ word: 'underestimate', meaning: 'دست‌کم گرفتن', essential504: true }] },
       { id: 'wholesale-excel', en: 'We excel at personal customer service.', fa: 'ما در خدمات شخصی به مشتری بسیار خوب عمل می‌کنیم.', pronunciation: 'وی اِکسِل اَت پِرسِنِل کاستِمِر سِرویس', vocabulary: [{ word: 'excel', meaning: 'برتری داشتن / بسیار خوب بودن', essential504: true }] },
       { id: 'wholesale-pilot', en: 'Start with a small trial order.', fa: 'با یک سفارش آزمایشی کوچک شروع کنید.', pronunciation: 'اِستارت ویذ اَ اِسمال تِرایِل اُردِر', vocabulary: [{ word: 'trial order', meaning: 'سفارش آزمایشی' }] },
-      { id: 'wholesale-review', en: 'Review the real costs after one month.', fa: 'پس از یک ماه هزینه‌های واقعی را بررسی کنید.', pronunciation: 'ریویو ذِ ریل کاستس اَفتِر وان مانث', vocabulary: [{ word: 'storage', meaning: 'انبارداری' }] },
+      { id: 'wholesale-review', en: 'Include storage costs in the monthly review.', fa: 'هزینه‌های انبارداری را در بررسی ماهانه لحاظ کنید.', pronunciation: 'اِنکلود اِستورِج کاستس اِن ذِ مانثلی رِویو', vocabulary: [{ word: 'storage', meaning: 'انبارداری' }] },
     ],
     dialogue: [
       { speaker: 'partner', text: 'Why consider wholesale sales?', fa: 'چرا فروش عمده را بررسی کنیم؟' },
@@ -87,7 +87,7 @@ export const ADVANCED_SENTENCE_LESSONS_7: SentenceLesson[] = [
       { id: 'safety-molest', en: 'No one has the right to molest people in public.', fa: 'هیچ‌کس حق ندارد در فضای عمومی برای مردم مزاحمت ایجاد کند.', pronunciation: 'نو وان هَز ذِ رایت تو مِلِست پیپِل این پابلیک', vocabulary: [{ word: 'molest', meaning: 'مزاحمت و آزار ایجاد کردن', essential504: true }] },
       { id: 'safety-rage', en: 'Uncontrolled rage can put others in danger.', fa: 'خشم کنترل‌نشده می‌تواند دیگران را در خطر قرار دهد.', pronunciation: 'آنکِنترولْد رِیج کَن پوت آذِرز این دِینجِر', vocabulary: [{ word: 'rage', meaning: 'خشم شدید', essential504: true }] },
       { id: 'safety-menace', en: 'Repeated threats can become a serious menace.', fa: 'تهدیدهای تکراری می‌توانند به خطری جدی تبدیل شوند.', pronunciation: 'ریپیتِد ثرِتس کَن بِکام اَ سیریِس مِنیس', vocabulary: [{ word: 'menace', meaning: 'خطر / تهدید جدی', essential504: true }] },
-      { id: 'safety-report', en: 'Provide a safe and private way to report abuse.', fa: 'راهی امن و خصوصی برای گزارش آزار فراهم کنید.', pronunciation: 'پروواید اَ سِیف اَند پرایوِت وِی تو ریپورت اَبیوس', vocabulary: [{ word: 'harassment', meaning: 'مزاحمت و آزار' }] },
+      { id: 'safety-report', en: 'Provide a safe, private way to report harassment.', fa: 'برای گزارش آزار و اذیت، راهی امن و محرمانه فراهم کنید.', pronunciation: 'پروواید اَ سِیف پرایوِت وِی تو ریپورت هَرَسمِنت', vocabulary: [{ word: 'harassment', meaning: 'مزاحمت و آزار' }] },
       { id: 'safety-support', en: 'Trained staff should support the victim.', fa: 'کارکنان آموزش‌دیده باید از قربانی حمایت کنند.', pronunciation: 'تِرِیند اِستَف شود ساپورت ذِ ویکتیم', vocabulary: [{ word: 'victim', meaning: 'قربانی' }] },
     ],
     dialogue: [
@@ -126,7 +126,7 @@ export const ADVANCED_SENTENCE_LESSONS_7: SentenceLesson[] = [
       { id: 'sample-pierce', en: 'Do not pierce the sample with the needle yet.', fa: 'هنوز نمونه را با سوزن سوراخ نکنید.', pronunciation: 'دو نات پیرس ذِ سَمپِل ویذ ذِ نیدِل یِت', vocabulary: [{ word: 'pierce', meaning: 'سوراخ کردن', essential504: true }] },
       { id: 'sample-observant', en: 'An observant researcher noticed a tiny change.', fa: 'پژوهشگری دقیق یک تغییر کوچک را متوجه شد.', pronunciation: 'اَن آبزِروِنت ریسِرچِر نوتیست اَ تاینِی چِینج', vocabulary: [{ word: 'observant', meaning: 'دقیق و تیزبین', essential504: true }] },
       { id: 'sample-note', en: 'Write down the color and shape.', fa: 'رنگ و شکل را یادداشت کنید.', pronunciation: 'رایت داون ذِ کالِر اَند شِیپ', vocabulary: [{ word: 'write down', meaning: 'یادداشت کردن' }] },
-      { id: 'sample-repeat', en: 'Repeat the test before drawing a conclusion.', fa: 'پیش از نتیجه‌گیری آزمایش را تکرار کنید.', pronunciation: 'ریپیت ذِ تِست بیفور دِرائینگ اَ کِنکلوژِن', vocabulary: [{ word: 'sample', meaning: 'نمونه' }] },
+      { id: 'sample-repeat', en: 'Repeat the test with a fresh sample before drawing a conclusion.', fa: 'پیش از نتیجه‌گیری، آزمایش را با نمونه‌ای تازه تکرار کنید.', pronunciation: 'ریپیت ذِ تِست وِذ اَ فرِش سَمپِل بیفور دِرائینگ اَ کِنکلوژِن', vocabulary: [{ word: 'sample', meaning: 'نمونه' }] },
     ],
     dialogue: [
       { speaker: 'partner', text: 'What did you see under the microscope?', fa: 'زیر میکروسکوپ چه دیدید؟' },

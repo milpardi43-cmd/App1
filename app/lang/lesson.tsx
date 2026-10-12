@@ -10,6 +10,7 @@ import { toPersianDigits } from '@/lib/format';
 import { getLesson } from '@/lib/langContent';
 import { recordReview } from '@/lib/langProgress';
 import { AgentTopBar, LESSON_ICONS, ProgressBar, SpeakButton } from '@/components/LangShared';
+import { EnglishPalette as Palette } from '@/components/EnglishSupplementTask';
 
 export default function LessonScreen() {
   const router = useRouter();
@@ -54,7 +55,7 @@ export default function LessonScreen() {
   if (finished) {
     return (
       <View style={styles.root}>
-        <AgentTopBar title={`درس ${toPersianDigits(lessonId)}`} subtitle={lesson.title} />
+        <AgentTopBar title={`درس ${toPersianDigits(lessonId)}`} subtitle={lesson.title} alignRight backFallback="/lang" />
         <View style={styles.finishWrap}>
           <LinearGradient colors={lesson.gradient} style={styles.finishBadge}>
             <Check size={36} color={Colors.onColor} strokeWidth={2.5} />
@@ -83,7 +84,7 @@ export default function LessonScreen() {
 
   return (
     <View style={styles.root}>
-      <AgentTopBar title={`درس ${toPersianDigits(lessonId)} — ${lesson.title}`} subtitle={lesson.subtitle} />
+      <AgentTopBar title={`درس ${toPersianDigits(lessonId)} — ${lesson.title}`} subtitle={lesson.subtitle} alignRight backFallback="/lang" />
 
       <View style={styles.progressRow}>
         <View style={styles.progressIconWrap}>
@@ -99,18 +100,13 @@ export default function LessonScreen() {
 
       {/* Flashcard */}
       <Pressable style={styles.cardWrap} onPress={() => setFlipped((f) => !f)}>
-        <LinearGradient
-          colors={flipped ? [Colors.neutral[900], Colors.neutral[850]] : lesson.gradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.card}
-        >
+        <View style={styles.card}>
           {!flipped ? (
             <>
               <Text style={styles.cardHint}>برای دیدن معنی روی کارت بزنید 👇</Text>
               <Text style={styles.cardWord}>{word.en}</Text>
               <View style={styles.cardSpeakRow}>
-                <SpeakButton text={word.en} color={Colors.onColor} size={56} />
+                <SpeakButton text={word.en} color={lesson.color} size={56} />
               </View>
             </>
           ) : (
@@ -126,7 +122,7 @@ export default function LessonScreen() {
               </View>
             </>
           )}
-        </LinearGradient>
+        </View>
       </Pressable>
 
       {/* Answer buttons */}
@@ -137,8 +133,8 @@ export default function LessonScreen() {
             <Text style={[styles.answerBtnText, { color: Colors.error[400] }]}>نمی‌دانستم</Text>
           </Pressable>
           <Pressable style={[styles.answerBtn, styles.answerKnew]} onPress={() => answer(true)}>
-            <Check size={18} color={Colors.success[500]} strokeWidth={2.6} />
-            <Text style={[styles.answerBtnText, { color: Colors.success[500] }]}>بلد بودم</Text>
+            <Check size={18} color={Palette.success} strokeWidth={2.6} />
+            <Text style={[styles.answerBtnText, { color: Palette.success }]}>بلد بودم</Text>
           </Pressable>
         </View>
       ) : (
@@ -155,8 +151,8 @@ export default function LessonScreen() {
             <Text style={styles.navBtnText}>قبلی</Text>
           </Pressable>
           <Pressable style={styles.navBtn} onPress={() => setFlipped(true)}>
-            <Text style={[styles.navBtnText, { color: Colors.accent[500] }]}>نمایش معنی</Text>
-            <ChevronLeft size={20} color={Colors.accent[500]} strokeWidth={2.4} />
+            <Text style={[styles.navBtnText, { color: Palette.primary }]}>نمایش معنی</Text>
+            <ChevronLeft size={20} color={Palette.primary} strokeWidth={2.4} />
           </Pressable>
         </View>
       )}
@@ -165,176 +161,38 @@ export default function LessonScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Colors.neutral[950], direction: 'rtl' },
-
-  progressRow: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.lg,
-  },
+  root: { flex: 1, backgroundColor: Palette.canvas },
+  progressRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: Spacing.md, paddingHorizontal: Spacing.lg, paddingTop: Spacing.lg },
   progressIconWrap: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6 },
-  progressText: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.sm,
-    fontWeight: Typography.weights.bold,
-  },
+  progressText: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.sm, fontWeight: Typography.weights.bold, textAlign: 'right', writingDirection: 'rtl' },
   progressBarWrap: { flex: 1 },
-
   cardWrap: { flex: 1, padding: Spacing.lg },
   card: {
-    flex: 1,
-    borderRadius: Radius.xl,
-    borderWidth: 1,
-    borderColor: Colors.neutral[800],
-    padding: Spacing.xl,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.lg,
+    flex: 1, borderRadius: Radius.xl, borderWidth: 1, borderColor: Palette.border,
+    backgroundColor: Palette.surface, padding: Spacing.xl, alignItems: 'center', justifyContent: 'center', gap: Spacing.lg,
+    shadowColor: '#172033', shadowOpacity: 0.06, shadowRadius: 14, shadowOffset: { width: 0, height: 5 }, elevation: 2,
   },
-  cardHint: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.sm,
-    color: 'rgba(255,255,255,0.8)',
-    textAlign: 'center',
-  },
-  cardWord: {
-    fontFamily: Typography.fontFamily,
-    fontSize: 52,
-    fontWeight: Typography.weights.bold,
-    color: Colors.onColor,
-    textAlign: 'center',
-  },
+  cardHint: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.sm, color: Palette.muted, textAlign: 'right', writingDirection: 'rtl', alignSelf: 'stretch' },
+  cardWord: { alignSelf: 'stretch', width: '100%', fontFamily: Typography.fontFamily, fontSize: 52, fontWeight: Typography.weights.bold, color: Palette.ink, textAlign: 'right', writingDirection: 'ltr' },
   cardSpeakRow: { marginTop: Spacing.sm },
-  cardBackWord: {
-    fontFamily: Typography.fontFamily,
-    fontSize: 30,
-    fontWeight: Typography.weights.bold,
-    color: Colors.neutral[100],
-    textAlign: 'center',
-  },
-  cardMeaning: {
-    fontFamily: Typography.fontFamily,
-    fontSize: 26,
-    fontWeight: Typography.weights.bold,
-    color: Colors.accent[500],
-    textAlign: 'center',
-  },
-  cardExampleBox: {
-    backgroundColor: Colors.neutral[900],
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    borderColor: Colors.neutral[800],
-    padding: Spacing.md,
-    gap: 6,
-    alignSelf: 'stretch',
-    marginTop: Spacing.sm,
-  },
-  cardExampleEn: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.sm,
-    color: Colors.neutral[100],
-    textAlign: 'left',
-  },
-  cardExampleFa: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.sm,
-    color: Colors.neutral[400],
-    textAlign: 'right',
-  },
-
-  answerRow: {
-    flexDirection: 'row-reverse',
-    gap: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.xxl + 20,
-  },
-  answerBtn: {
-    flex: 1,
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: Spacing.md,
-    borderRadius: Radius.lg,
-    borderWidth: 1.5,
-  },
-  answerAgain: { backgroundColor: Colors.error[500] + '12', borderColor: Colors.error[500] + '50' },
-  answerKnew: { backgroundColor: Colors.success[500] + '12', borderColor: Colors.success[500] + '50' },
-  answerBtnText: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.md,
-    fontWeight: Typography.weights.bold,
-  },
-
-  navRow: {
-    flexDirection: 'row-reverse',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.xxl + 20,
-  },
-  navBtn: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    backgroundColor: Colors.neutral[900],
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    borderColor: Colors.neutral[800],
-  },
+  cardBackWord: { alignSelf: 'stretch', width: '100%', fontFamily: Typography.fontFamily, fontSize: 30, fontWeight: Typography.weights.bold, color: Palette.ink, textAlign: 'right', writingDirection: 'ltr' },
+  cardMeaning: { width: '100%', fontFamily: Typography.fontFamily, fontSize: 26, lineHeight: 36, fontWeight: Typography.weights.bold, color: Palette.primary, textAlign: 'right', writingDirection: 'rtl' },
+  cardExampleBox: { backgroundColor: Palette.surfaceMuted, borderRadius: Radius.lg, borderWidth: 1, borderColor: Palette.border, padding: Spacing.md, gap: 7, alignSelf: 'stretch', marginTop: Spacing.sm },
+  cardExampleEn: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.sm, lineHeight: 23, color: Palette.ink, textAlign: 'right', writingDirection: 'ltr' },
+  cardExampleFa: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.sm, color: Palette.text, textAlign: 'right', writingDirection: 'rtl' },
+  answerRow: { flexDirection: 'row-reverse', gap: Spacing.md, paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xxl + 20 },
+  answerBtn: { flex: 1, flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: Spacing.md, borderRadius: Radius.lg, borderWidth: 1.5 },
+  answerAgain: { backgroundColor: Palette.dangerSoft, borderColor: '#FECACA' },
+  answerKnew: { backgroundColor: Palette.successSoft, borderColor: '#BBF7D0' },
+  answerBtnText: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, writingDirection: 'rtl', textAlign: 'center' },
+  navRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xxl + 20 },
+  navBtn: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md, backgroundColor: Palette.surface, borderRadius: Radius.lg, borderWidth: 1, borderColor: Palette.border },
   navBtnDisabled: { opacity: 0.4 },
-  navBtnText: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.sm,
-    color: Colors.neutral[200],
-    fontWeight: Typography.weights.medium,
-  },
-
-  finishWrap: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.xl,
-    gap: Spacing.lg,
-  },
-  finishBadge: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  finishTitle: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.xxl,
-    fontWeight: Typography.weights.bold,
-    color: Colors.neutral[0],
-    textAlign: 'center',
-  },
-  finishSub: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.md,
-    color: Colors.neutral[300],
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  finishBtn: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.xl,
-    borderRadius: Radius.lg,
-    alignSelf: 'stretch',
-  },
-  finishBtnText: {
-    fontFamily: Typography.fontFamily,
-    fontSize: Typography.sizes.md,
-    fontWeight: Typography.weights.bold,
-    color: Colors.onColor,
-  },
+  navBtnText: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.sm, color: Palette.text, fontWeight: Typography.weights.medium, writingDirection: 'rtl' },
+  finishWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.xl, margin: Spacing.lg, gap: Spacing.lg, backgroundColor: Palette.surface, borderRadius: Radius.xl, borderWidth: 1, borderColor: Palette.border, shadowColor: '#172033', shadowOpacity: 0.06, shadowRadius: 14, shadowOffset: { width: 0, height: 5 }, elevation: 2 },
+  finishBadge: { width: 88, height: 88, borderRadius: 44, justifyContent: 'center', alignItems: 'center' },
+  finishTitle: { alignSelf: 'stretch', fontFamily: Typography.fontFamily, fontSize: Typography.sizes.xxl, fontWeight: Typography.weights.bold, color: Palette.ink, textAlign: 'right', writingDirection: 'rtl' },
+  finishSub: { alignSelf: 'stretch', fontFamily: Typography.fontFamily, fontSize: Typography.sizes.md, color: Palette.text, textAlign: 'right', writingDirection: 'rtl', lineHeight: 24 },
+  finishBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: Spacing.md, paddingHorizontal: Spacing.xl, borderRadius: Radius.lg, alignSelf: 'stretch' },
+  finishBtnText: { fontFamily: Typography.fontFamily, fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, color: Colors.onColor, writingDirection: 'rtl', textAlign: 'center' },
 });

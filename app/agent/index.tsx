@@ -24,7 +24,8 @@ import {
   Square,
   GraduationCap,
 } from 'lucide-react-native';
-import { Colors, Typography, Spacing, Radius } from '@/lib/theme';
+import { Colors, Typography, Spacing, Radius, RtlDirection } from '@/lib/theme';
+import { PageNavigation } from '@/components/PageNavigation';
 import { toPersianDigits } from '@/lib/format';
 import { checkPairingStatus, markOffline, isSupabaseConfigured } from '@/lib/pairing';
 import { getPairingState, clearPairingState, clearDeviceId, type PairingState } from '@/lib/storage';
@@ -122,6 +123,7 @@ export default function AgentHomeScreen() {
     return (
       <ScrollView style={styles.root}>
         <View style={styles.body}>
+          <PageNavigation tone="dark" backFallback="/languages" />
           <LinearGradient
             colors={[Colors.primary[600], Colors.accent[800]]}
             start={{ x: 0, y: 0 }}
@@ -178,7 +180,7 @@ export default function AgentHomeScreen() {
             <GraduationCap size={20} color={Colors.accent[300]} strokeWidth={2.2} />
             <View style={styles.languageTextWrap}>
               <Text style={styles.languageTitle}>آموزش زبان انگلیسی</Text>
-              <Text style={styles.languageDesc}>۱۲ درس، تلفظ صوتی، فلش‌کارت و آزمون</Text>
+              <Text style={styles.languageDesc}>۱۶۱ درس جمله‌محور، تلفظ صوتی و مرور</Text>
             </View>
           </Pressable>
         </View>
@@ -191,6 +193,7 @@ export default function AgentHomeScreen() {
   return (
     <ScrollView style={styles.root}>
       <View style={styles.body}>
+        <PageNavigation tone="dark" backFallback="/languages" />
         {/* status hero */}
         <LinearGradient
           colors={[Colors.success[500], '#065f46']}
@@ -368,7 +371,7 @@ function InfoTile({
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: Colors.neutral[950], direction: 'rtl' },
+  root: { flex: 1, backgroundColor: Colors.neutral[950], ...RtlDirection },
   center: { justifyContent: 'center', alignItems: 'center' },
   body: { padding: Spacing.lg, paddingBottom: Spacing.xxl + 24 },
 

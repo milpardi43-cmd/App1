@@ -40,6 +40,8 @@ Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (request.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
+  if(Deno.env.get('PAID_AI_ENABLED') !== 'true') return json({error:'Paid AI is disabled',code:'PAID_AI_DISABLED'},503);
+
   try {
     const authorization = request.headers.get('Authorization');
     if (!authorization) return json({ error: 'Authentication required' }, 401);
@@ -59,6 +61,7 @@ Deno.serve(async (request) => {
     if (allowed === false) return json({ error: 'Daily speech practice limit reached' }, 429);
 
     const form = await request.formData();
+    if(form.get('consent')!=='true')return json({error:'Explicit audio consent required',code:'CONSENT_REQUIRED'},400);
     const audio = form.get('audio');
     const expected = String(form.get('expected') ?? '').trim();
     const mode = form.get('mode') === 'transcribe' ? 'transcribe' : 'evaluate';
@@ -74,7 +77,7 @@ Deno.serve(async (request) => {
     openAIForm.append('model', Deno.env.get('OPENAI_TRANSCRIBE_MODEL') || 'whisper-1');
     openAIForm.append('language', 'en');
     openAIForm.append('response_format', 'json');
-    if (expected) openAIForm.append('prompt', expected);
+    // Never bias transcription by supplying the expected answer as a prompt.
 
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
@@ -96,13 +99,7 @@ Deno.serve(async (request) => {
     const score = Math.max(0, Math.round((1 - distance / Math.max(1, expectedWords.length, recognizedWords.length)) * 100));
     const recognizedSet = new Set(recognizedWords);
     const missingWords = Array.from(new Set(expectedWords.filter((word) => !recognizedSet.has(word))));
-    const feedbackFa = score >= 90
-      ? 'عالی بود؛ جمله شما کاملاً واضح و قابل‌فهم بود.'
-      : score >= 75
-        ? 'خیلی خوب بود؛ فقط بخش‌های مشخص‌شده را یک بار دیگر تمرین کنید.'
-        : score >= 55
-          ? 'جمله قابل‌فهم بود، اما بهتر است کلمات مشخص‌شده را دوباره بگویید.'
-          : 'این بار جمله را آهسته‌تر بشنوید و دوباره با صدای بلند تکرار کنید.';
+    const feedbackFa = 'این عدد فقط شباهت متن تشخیص‌داده‌شده با جمله هدف است؛ نمره تلفظ، وضوح واقعی صدا یا مکالمه نیست.';
 
     return json({ recognized, score, missingWords, feedbackFa });
   } catch (error) {

@@ -14,9 +14,22 @@ import type { Device } from './types';
 
 export const PAIRING_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
+/**
+ * Values that come from .env.example / .env templates rather than from a real
+ * project. Treating them as "configured" made the app fire doomed requests and
+ * show network errors instead of telling the user to fill in .env.
+ */
+const TEMPLATE_URL_MARKERS = ['placeholder', 'your-project', 'example.com'];
+const TEMPLATE_KEY_MARKERS = ['your-anon-key', 'placeholder-anon-key'];
+
 export function isSupabaseConfigured(): boolean {
   const url = (process.env.EXPO_PUBLIC_SUPABASE_URL || '').trim();
-  return url.startsWith('https://') && !url.includes('placeholder');
+  const key = (process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '').trim();
+  if (!url.startsWith('https://')) return false;
+  if (TEMPLATE_URL_MARKERS.some((marker) => url.includes(marker))) return false;
+  if (!key) return false;
+  if (TEMPLATE_KEY_MARKERS.some((marker) => key.includes(marker))) return false;
+  return true;
 }
 
 function generateCode(): string {
